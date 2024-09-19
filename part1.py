@@ -14,7 +14,6 @@ def make_graph(node_amount):
             graph.add_edge(i, j, weight=distance)
     
     matrix = nx.to_numpy_array(graph)
-    print(matrix)
 
     return matrix
 

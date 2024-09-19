@@ -14,7 +14,6 @@ def main():
         line = sys.stdin.readline().strip()
         matrix.append([int(x) for x in line.split()])  
     adjacency_matrix = np.array(matrix)
-    print(adjacency_matrix)
     path, cost = nearest_neighbor(adjacency_matrix, 0)
     print("Visited path:", path)
     print("Total cost:", cost)
