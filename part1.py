@@ -18,20 +18,25 @@ def make_graph(node_amount):
 
     return matrix
 
-def nearest_neighbor(adj_matrix):
-    start = 1
+# Nearest Neighbors algorithm
+# code based on the below stackoverflow post
+# https://stackoverflow.com/questions/17493494/nearest-neighbour-algorithm
+def nearest_neighbor(adj_matrix, start):
+    path = [start]
+    cost = 0
+    N = adj_matrix.shape[0]
+    mask = np.ones(N, dtype=bool)  # boolean values indicating which 
+                                   # locations have not been visited
+    mask[start] = False
 
-size_5_graphs = [] 
-size_10_graphs = []
-size_15_graphs = []
-size_20_graphs = []
-size_25_graphs = []
-size_30_graphs = []
+    for i in range(N-1):
+        last = path[-1]
+        next_ind = np.argmin(adj_matrix[last][mask]) # find minimum of remaining locations
+        next_loc = np.arange(N)[mask][next_ind] # convert to original location
+        path.append(next_loc)
+        mask[next_loc] = False
+        cost += adj_matrix[last, next_loc]
 
-for i in range(30):
-    size_5_graphs.append(make_graph(5))
-    size_10_graphs.append(make_graph(10))
-    size_15_graphs.append(make_graph(15))
-    size_20_graphs.append(make_graph(20))
-    size_25_graphs.append(make_graph(25))
-    size_30_graphs.append(make_graph(30))
+    return path, cost
+
+
