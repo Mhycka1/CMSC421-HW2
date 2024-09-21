@@ -25,11 +25,11 @@ def make_graph(node_amount):
 # Nearest Neighbors algorithm
 # code based on the below stackoverflow post
 # https://stackoverflow.com/questions/17493494/nearest-neighbour-algorithm
-def nearest_neighbor(adj_matrix, start, track_time):
+def nearest_neighbor(adj_matrix, start, make_file):
 
-    if track_time:
-        real_start_time = time.time()  # Wall clock time
-        cpu_start_time = psutil.Process(os.getpid()).cpu_times().user  
+    
+    real_start_time = time.time()  # Wall clock time
+    cpu_start_time = psutil.Process(os.getpid()).cpu_times().user  
 
 
     path = [start]
@@ -51,32 +51,32 @@ def nearest_neighbor(adj_matrix, start, track_time):
         nodes_expanded += 1
 
     # this basically prevents the file from being written if the method is being run by 2-opt method
-    if track_time:
+ 
     
-        real_end_time = time.time()  
-        cpu_end_time = psutil.Process(os.getpid()).cpu_times().user 
+    real_end_time = time.time()  
+    cpu_end_time = psutil.Process(os.getpid()).cpu_times().user 
 
-        # Calculate CPU run time and real-world (wall clock) run time
-        cpu_run_time = cpu_end_time - cpu_start_time
-        real_run_time = real_end_time - real_start_time
+    # Calculate CPU run time and real-world (wall clock) run time
+    cpu_run_time = cpu_end_time - cpu_start_time
+    real_run_time = real_end_time - real_start_time
 
+    if make_file:
         with open('nearest_neighbor.csv', mode='w', newline='') as file:
             writer = csv.writer(file)
             writer.writerow([f"Total cost: {cost}, Nodes expanded: {nodes_expanded}, CPU Run Time: {cpu_run_time:.6f} seconds, Real-World Run Time: {real_run_time:.6f} seconds"])
-        return path, cost
-    else:
-        return path, cost, nodes_expanded
+    
+    return path, cost, nodes_expanded, cpu_run_time, real_run_time
 
 
 
 
-
-def nearest_neighbor_2opt(adj_matrix):
+# might need to keep track of the cost from 2-opt and add it, idk
+def nearest_neighbor_2opt(adj_matrix, make_file):
 
     real_start_time = time.time()  
     cpu_start_time = psutil.Process(os.getpid()).cpu_times().user 
 
-    path, cost, nn_expanded = nearest_neighbor(adj_matrix, 0, False)
+    path, cost, nn_expanded, nn_cpu_runtime, nn_real_runtime = nearest_neighbor(adj_matrix, 0, False)
     optimized_route, two_opt_expanded = two_opt(path, adj_matrix)
 
     real_end_time = time.time()  
@@ -84,11 +84,12 @@ def nearest_neighbor_2opt(adj_matrix):
     cpu_run_time = cpu_end_time - cpu_start_time
     real_run_time = real_end_time - real_start_time
 
-    with open('nearest_neighbor_2opt.csv', mode='w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow([f"Total cost: {cost}, Nodes expanded: {two_opt_expanded + nn_expanded}, CPU Run Time: {cpu_run_time:.6f} seconds, Real-World Run Time: {real_run_time:.6f} seconds"])
+    if make_file:
+        with open('nearest_neighbor_2opt.csv', mode='w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow([f"Total cost: {cost}, Nodes expanded: {two_opt_expanded + nn_expanded}, CPU Run Time: {cpu_run_time:.6f} seconds, Real-World Run Time: {real_run_time:.6f} seconds"])
 
-    return optimized_route
+    return optimized_route, cost, two_opt_expanded + nn_expanded, cpu_run_time, real_run_time
 
 
 # edited from the below stackoverflow post
@@ -118,7 +119,7 @@ def two_opt(route, cost_mat):
 
 # adapted from a chatgpt prompt asking to adapt my above NN and NN2O code 
 # into an RNN algorithm
-def repeated_randomized_nearest_neighbor_2opt(adj_matrix, iterations, n):
+def repeated_randomized_nearest_neighbor_2opt(adj_matrix, iterations, n, make_file):
     best_path = None
     best_cost = float('inf')
     total_nodes_expanded = 0
@@ -176,8 +177,9 @@ def repeated_randomized_nearest_neighbor_2opt(adj_matrix, iterations, n):
     cpu_run_time = cpu_end_time - cpu_start_time
     real_run_time = real_end_time - real_start_time
 
-    with open('repeated_randomized_nearest_neighbor_2opt.csv', mode='w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow([f"Best Total cost: {best_cost}, Total Nodes expanded: {total_nodes_expanded}, CPU Run Time: {cpu_run_time:.6f} seconds, Real-World Run Time: {real_run_time:.6f} seconds"])
+    if make_file:
+        with open('repeated_randomized_nearest_neighbor_2opt.csv', mode='w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow([f"Best Total cost: {best_cost}, Total Nodes expanded: {total_nodes_expanded}, CPU Run Time: {cpu_run_time:.6f} seconds, Real-World Run Time: {real_run_time:.6f} seconds"])
 
-    return best_path, best_cost
+    return best_path, best_cost, total_nodes_expanded, cpu_run_time, real_run_time
