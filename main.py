@@ -2,6 +2,7 @@ import sys
 import numpy as np
 from part1 import make_graph, nearest_neighbor, nearest_neighbor_2opt, repeated_randomized_nearest_neighbor_2opt
 from part2 import A_MST
+from part3 import hill_climbing
 
 
 def main():
@@ -20,8 +21,8 @@ def main():
     # best = nearest_neighbor_2opt(adjacency_matrix)
     # test_path, test_cost = repeated_randomized_nearest_neighbor_2opt(adjacency_matrix, 10, 3)
 
-    path, cost = A_MST(adjacency_matrix)
-    print(f'A_MST path: {path}, A_MST cost: {cost}')
+    # path, cost = A_MST(adjacency_matrix)
+    lol = hill_climbing(adjacency_matrix, True)
 
     #part 1 of the assignment
     # size_5_graphs = [] 

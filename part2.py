@@ -5,7 +5,9 @@ import networkx as nx
 # help adapted from chatgpt prompt
 def mst_heuristic(adj_matrix, unvisited):
     """Calculate the Minimum Spanning Tree (MST) cost of the unvisited cities."""
-    # Create a subgraph of the unvisited cities
+    if len(unvisited) <= 1:
+        return 0  # No MST if only one or no city is left to visit
+    
     subgraph = adj_matrix[np.ix_(unvisited, unvisited)]
     graph = nx.Graph()
     
@@ -18,10 +20,9 @@ def mst_heuristic(adj_matrix, unvisited):
     # Calculate the MST 
     mst = nx.minimum_spanning_tree(graph)
     
-    # Return the sum of the MST weights
     return mst.size(weight='weight')
 
-# A* with MST adapted from chatgpt code
+# A* with MST heuristic
 def A_MST(adj_matrix):
     N = adj_matrix.shape[0]
     start_city = 0
@@ -31,13 +32,24 @@ def A_MST(adj_matrix):
     initial_state = (0, start_city, [start_city], [start_city])
     heapq.heappush(pq, (0, initial_state))
     
+    visited_states = set()  # To track visited states
+
     while pq:
         # Pop the state with the smallest f(n) = g(n) + h(n)
         current_cost, (g_n, current_city, visited, path) = heapq.heappop(pq)
+
+        state_tuple = (current_city, tuple(visited))
+        if state_tuple in visited_states:
+            continue
+        visited_states.add(state_tuple)
         
         # If all cities are visited and we are back at the start, goal state is achieved
-        if len(visited) == N and path[-1] == start_city:
-            return path, current_cost
+        if len(visited) == N:
+            # Add the cost to return to the start city to complete the tour
+            return_to_start_cost = adj_matrix[current_city][start_city]
+            #note i got rid of the return to start cost, didn't think i'd need it
+            total_cost = g_n 
+            return path, total_cost
         
         # Expand successors (visit next city)
         for next_city in range(N):
@@ -46,7 +58,7 @@ def A_MST(adj_matrix):
                 new_g_n = g_n + adj_matrix[current_city][next_city]
                 
                 # h(n): Calculate the MST heuristic for the remaining unvisited cities
-                unvisited = [city for city in range(N) if city not in visited and city != next_city]
+                unvisited = [city for city in range(N) if city not in visited]
                 mst_cost = mst_heuristic(adj_matrix, unvisited) if unvisited else 0
                 
                 # Calculate f(n) = g(n) + h(n)
@@ -58,4 +70,4 @@ def A_MST(adj_matrix):
                 # Push the new state into the priority queue
                 heapq.heappush(pq, (f_n, new_state))
     
-    return None, float('inf')
+    return None, float('inf')  # If no solution found
