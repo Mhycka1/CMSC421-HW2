@@ -2,7 +2,7 @@ import sys
 import numpy as np
 from part1 import make_graph, nearest_neighbor, nearest_neighbor_2opt, repeated_randomized_nearest_neighbor_2opt
 from part2 import A_MST
-from part3 import hillClimbing, simuAnnealing
+from part3 import hillClimbing, simuAnnealing, genetic
 
 
 def main():
@@ -22,7 +22,7 @@ def main():
     # test_path, test_cost = repeated_randomized_nearest_neighbor_2opt(adjacency_matrix, 10, 3)
 
     # path, cost = A_MST(adjacency_matrix)
-    lol = simuAnnealing(adjacency_matrix, True)
+    lol = genetic(adjacency_matrix, True)
 
     #part 1 of the assignment
     # size_5_graphs = [] 

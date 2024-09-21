@@ -141,3 +141,119 @@ def simuAnnealing(adj_matrix, make_file, restarts=1, initial_temperature=1000, a
                              f"CPU Run Time: {cpu_run_time:.6f} seconds, Real-World Run Time: {real_run_time:.6f} seconds"])
 
     return best_path, best_cost, total_nodes_expanded, cpu_run_time, real_run_time
+
+
+
+
+# Selection function: Tournament or Roulette Wheel
+def selection(population, fitnesses, selection_type):
+    if selection_type == "roulette":
+        # Roulette wheel selection
+        total_fitness = sum(fitnesses)
+        pick = random.uniform(0, total_fitness)
+        current = 0
+        for i, fitness in enumerate(fitnesses):
+            current += fitness
+            if current > pick:
+                return population[i]
+    elif selection_type == "tournament":
+        # Tournament selection
+        tournament_size = 3
+        selected = random.sample(list(zip(population, fitnesses)), tournament_size)
+        selected.sort(key=lambda x: x[1], reverse=True)  # Sort by fitness (maximize)
+        return selected[0][0]
+
+# Crossover function: Performs ordered crossover
+def crossover(parent1, parent2, length):
+    N = len(parent1)
+    start = random.randint(0, N - length)
+    child = [-1] * N
+    
+    # Copy a slice from parent1
+    child[start:start + length] = parent1[start:start + length]
+
+    # Fill in the rest from parent2
+    idx = 0
+    for city in parent2:
+        if city not in child:
+            while child[idx] != -1:
+                idx += 1
+            child[idx] = city
+    
+    return child
+
+# Mutation function: Randomly swaps two cities
+def mutate(path, mutation_rate):
+    if random.uniform(0, 1) < mutation_rate:
+        i, j = random.sample(range(1, len(path)), 2)  # Avoid starting city
+        path[i], path[j] = path[j], path[i]  # Swap two cities
+
+# Genetic Algorithm function
+def genetic(adj_matrix, make_file, generations=100, selection_type="roulette", 
+                     crossover_prob=0.8, crossover_length=3, mutation_rate=0.01, population_size=100):
+    N = adj_matrix.shape[0]
+    population = []
+
+    # Create the initial population (random paths)
+    for _ in range(population_size):
+        path = [0] + random.sample(range(1, N), N - 1)  # Keep starting city fixed
+        population.append(path)
+    
+    # Start overall timing
+    real_start_time = time.perf_counter()  # Precise real-world time
+    cpu_start_time = psutil.Process(os.getpid()).cpu_times().user  # CPU time
+
+    best_path = None
+    best_cost = float('inf')
+    total_nodes_expanded = 0
+
+    for generation in range(generations):
+        fitnesses = [1 / value(adj_matrix, path) for path in population]  # Higher fitness for lower cost
+
+        # New generation
+        new_population = []
+        
+        while len(new_population) < population_size:
+            # Selection
+            parent1 = selection(population, fitnesses, selection_type)
+            parent2 = selection(population, fitnesses, selection_type)
+            
+            # Crossover
+            if random.uniform(0, 1) < crossover_prob:
+                child1 = crossover(parent1, parent2, crossover_length)
+                child2 = crossover(parent2, parent1, crossover_length)
+            else:
+                child1, child2 = parent1[:], parent2[:]
+            
+            # Mutation
+            mutate(child1, mutation_rate)
+            mutate(child2, mutation_rate)
+            
+            new_population.append(child1)
+            new_population.append(child2)
+
+        # Update population and total nodes expanded
+        population = new_population[:population_size]  # Ensure correct population size
+        total_nodes_expanded += population_size  # Nodes expanded equals the population size
+
+        # Evaluate new population and update best solution
+        for path in population:
+            current_cost = value(adj_matrix, path)
+            if current_cost < best_cost:
+                best_cost = current_cost
+                best_path = path
+
+    # Calculate overall timing
+    real_end_time = time.perf_counter()  # Precise real-world time
+    cpu_end_time = psutil.Process(os.getpid()).cpu_times().user  # CPU time
+    cpu_run_time = cpu_end_time - cpu_start_time
+    real_run_time = real_end_time - real_start_time
+
+    # If make_file is True, write results to CSV
+    if make_file:
+        with open('genetic.csv', mode='w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow([f"Total cost: {best_cost}, Nodes expanded: {total_nodes_expanded}, "
+                             f"CPU Run Time: {cpu_run_time:.6f} seconds, Real-World Run Time: {real_run_time:.6f} seconds"])
+
+    return best_path, best_cost, total_nodes_expanded, cpu_run_time, real_run_time
