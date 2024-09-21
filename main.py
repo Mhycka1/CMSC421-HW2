@@ -1,6 +1,6 @@
 import sys
 import numpy as np
-from part1 import make_graph, nearest_neighbor, nearest_neighbor_2opt
+from part1 import make_graph, nearest_neighbor, nearest_neighbor_2opt, repeated_randomized_nearest_neighbor_2opt
 
 
 def main():
@@ -20,7 +20,7 @@ def main():
     #print("Total cost:", cost)
 
     best = nearest_neighbor_2opt(adjacency_matrix)
-    
+    test_path, test_cost = repeated_randomized_nearest_neighbor_2opt
 
     #part 1 of the assignment
     # size_5_graphs = [] 
