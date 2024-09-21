@@ -116,14 +116,15 @@ def two_opt(route, cost_mat):
 
 
 
-
+# adapted from a chatgpt prompt asking to adapt my above NN and NN2O code 
+# into an RNN algorithm
 def repeated_randomized_nearest_neighbor_2opt(adj_matrix, iterations, n):
     best_path = None
     best_cost = float('inf')
     total_nodes_expanded = 0
 
 
-    real_start_time = time.time()  # Wall clock time
+    real_start_time = time.time()  
     cpu_start_time = psutil.Process(os.getpid()).cpu_times().user  # CPU time
 
     # Repeat the algorithm for the given number of iterations
