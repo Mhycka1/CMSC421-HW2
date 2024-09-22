@@ -6,6 +6,7 @@ import time
 import csv
 import os
 import psutil  # for CPU time
+import matplotlib.pyplot as plt
 
 
 # #method to generate graphs
@@ -186,12 +187,14 @@ def repeated_randomized_nearest_neighbor_2opt(adj_matrix, iterations=10, n=3, ma
 
 def calculate_stats(data):
     return {
-        'avg': np.mean(data),
-        'min': np.min(data),
-        'max': np.max(data)
+        'avg': round(float(np.mean(data)), 6),
+        'min': round(float(np.min(data)), 6),
+        'max': round(float(np.max(data)), 6)
     }
 
-# Function to process and collect stats for each graph family size
+
+
+
 def process_graph_family(size_graphs, size_label):
     # Initialize lists for storing results
     nn_costs, nn_expanded, nn_cpu, nn_real = [], [], [], []
@@ -199,18 +202,16 @@ def process_graph_family(size_graphs, size_label):
     rnn_costs, rnn_expanded, rnn_cpu, rnn_real = [], [], [], []
     rnn2_costs, rnn2_expanded, rnn2_cpu, rnn2_real = [], [], [], []
     rnn4_costs, rnn4_expanded, rnn4_cpu, rnn4_real = [], [], [], []
-    
+
     # Loop through each graph in the family
-    for i in range(30):
-        graph = size_graphs[i]
-        
+    for graph in size_graphs:  # Iterate directly over size_graphs
         # Run algorithms and append results
         nn_path, nn_cost, nn_expanded_val, nn_cpu_val, nn_real_val = nearest_neighbor(graph, 0, False)
         nn2o_path, nn2o_cost, nn2o_expanded_val, nn2o_cpu_val, nn2o_real_val = nearest_neighbor_2opt(graph, False)
         rnn_path, rnn_cost, rnn_expanded_val, rnn_cpu_val, rnn_real_val = repeated_randomized_nearest_neighbor_2opt(graph, n=3, make_file=False)
         rnn2_path, rnn2_cost, rnn2_expanded_val, rnn2_cpu_val, rnn2_real_val = repeated_randomized_nearest_neighbor_2opt(graph, n=2, make_file=False)
         rnn4_path, rnn4_cost, rnn4_expanded_val, rnn4_cpu_val, rnn4_real_val = repeated_randomized_nearest_neighbor_2opt(graph, n=4, make_file=False)
-        
+
         # Append results for size X graphs
         nn_costs.append(nn_cost)
         nn_expanded.append(nn_expanded_val)
@@ -270,20 +271,29 @@ def process_graph_family(size_graphs, size_label):
             'real': calculate_stats(rnn4_real)
         }
     }
-    
+
     # Output the stats to a CSV file (optional)
     with open(f'{size_label}_stats.csv', mode='w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow([f"Algorithm, Cost (avg/min/max), Nodes Expanded (avg/min/max), CPU Run Time (avg/min/max), Real Run Time (avg/min/max)"])
-        writer.writerow([f"NN, {stats['nn']['costs']}, {stats['nn']['expanded']}, {stats['nn']['cpu']}, {stats['nn']['real']}"])
-        writer.writerow([f"NN2-Opt, {stats['nn2o']['costs']}, {stats['nn2o']['expanded']}, {stats['nn2o']['cpu']}, {stats['nn2o']['real']}"])
-        writer.writerow([f"RNN 3, {stats['rnn']['costs']}, {stats['rnn']['expanded']}, {stats['rnn']['cpu']}, {stats['rnn']['real']}"])
-        writer.writerow([f"RNN 2, {stats['rnn2']['costs']}, {stats['rnn2']['expanded']}, {stats['rnn2']['cpu']}, {stats['rnn2']['real']}"])
-        writer.writerow([f"RNN 4, {stats['rnn4']['costs']}, {stats['rnn4']['expanded']}, {stats['rnn4']['cpu']}, {stats['rnn4']['real']}"])
+
+        # Define a custom dialect with a space after commas
+        class SpaceDialect(csv.Dialect):
+            delimiter = ' '  # Single space character
+            quoting = csv.QUOTE_MINIMAL
+            quotechar = '"'  # Add a quote character
+            lineterminator = '\n'
+        
+        writer = csv.writer(file, dialect=SpaceDialect)
+        writer.writerow(["Statistic", "Average", "Minimum", "Maximum"])
+
+        # Writing all algorithm stats in a loop for cleanliness
+        for algorithm in stats:
+            writer.writerow([f"{algorithm.upper()} Cost", stats[algorithm]['costs']['avg'], stats[algorithm]['costs']['min'], stats[algorithm]['costs']['max']])
+            writer.writerow([f"{algorithm.upper()} Nodes Expanded", stats[algorithm]['expanded']['avg'], stats[algorithm]['expanded']['min'], stats[algorithm]['expanded']['max']])
+            writer.writerow([f"{algorithm.upper()} CPU Time", stats[algorithm]['cpu']['avg'], stats[algorithm]['cpu']['min'], stats[algorithm]['cpu']['max']])
+            writer.writerow([f"{algorithm.upper()} Real Time", stats[algorithm]['real']['avg'], stats[algorithm]['real']['min'], stats[algorithm]['real']['max']])
 
     return stats
-
-
 
 # Part 1 of the assignment
 def main():
@@ -308,6 +318,10 @@ def main():
     size_20_stats = process_graph_family(size_20_graphs, 'Size_20')
     size_25_stats = process_graph_family(size_25_graphs, 'Size_25')
     size_30_stats = process_graph_family(size_30_graphs, 'Size_30')
+
+    
+
+    
 
 if __name__ == "__main__":
     main()
