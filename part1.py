@@ -119,7 +119,7 @@ def two_opt(route, cost_mat):
 
 # adapted from a chatgpt prompt asking to adapt my above NN and NN2O code 
 # into an RNN algorithm
-def repeated_randomized_nearest_neighbor_2opt(adj_matrix, iterations, n, make_file):
+def repeated_randomized_nearest_neighbor_2opt(adj_matrix, iterations=10, n=3, make_file=True):
     best_path = None
     best_cost = float('inf')
     total_nodes_expanded = 0
@@ -183,3 +183,131 @@ def repeated_randomized_nearest_neighbor_2opt(adj_matrix, iterations, n, make_fi
             writer.writerow([f"Best Total cost: {best_cost}, Total Nodes expanded: {total_nodes_expanded}, CPU Run Time: {cpu_run_time:.6f} seconds, Real-World Run Time: {real_run_time:.6f} seconds"])
 
     return best_path, best_cost, total_nodes_expanded, cpu_run_time, real_run_time
+
+def calculate_stats(data):
+    return {
+        'avg': np.mean(data),
+        'min': np.min(data),
+        'max': np.max(data)
+    }
+
+# Function to process and collect stats for each graph family size
+def process_graph_family(size_graphs, size_label):
+    # Initialize lists for storing results
+    nn_costs, nn_expanded, nn_cpu, nn_real = [], [], [], []
+    nn2o_costs, nn2o_expanded, nn2o_cpu, nn2o_real = [], [], [], []
+    rnn_costs, rnn_expanded, rnn_cpu, rnn_real = [], [], [], []
+    rnn2_costs, rnn2_expanded, rnn2_cpu, rnn2_real = [], [], [], []
+    rnn4_costs, rnn4_expanded, rnn4_cpu, rnn4_real = [], [], [], []
+    
+    # Loop through each graph in the family
+    for i in range(30):
+        graph = size_graphs[i]
+        
+        # Run algorithms and append results
+        nn_path, nn_cost, nn_expanded_val, nn_cpu_val, nn_real_val = nearest_neighbor(graph, 0, False)
+        nn2o_path, nn2o_cost, nn2o_expanded_val, nn2o_cpu_val, nn2o_real_val = nearest_neighbor_2opt(graph, False)
+        rnn_path, rnn_cost, rnn_expanded_val, rnn_cpu_val, rnn_real_val = repeated_randomized_nearest_neighbor_2opt(graph, n=3, make_file=False)
+        rnn2_path, rnn2_cost, rnn2_expanded_val, rnn2_cpu_val, rnn2_real_val = repeated_randomized_nearest_neighbor_2opt(graph, n=2, make_file=False)
+        rnn4_path, rnn4_cost, rnn4_expanded_val, rnn4_cpu_val, rnn4_real_val = repeated_randomized_nearest_neighbor_2opt(graph, n=4, make_file=False)
+        
+        # Append results for size X graphs
+        nn_costs.append(nn_cost)
+        nn_expanded.append(nn_expanded_val)
+        nn_cpu.append(nn_cpu_val)
+        nn_real.append(nn_real_val)
+
+        nn2o_costs.append(nn2o_cost)
+        nn2o_expanded.append(nn2o_expanded_val)
+        nn2o_cpu.append(nn2o_cpu_val)
+        nn2o_real.append(nn2o_real_val)
+
+        rnn_costs.append(rnn_cost)
+        rnn_expanded.append(rnn_expanded_val)
+        rnn_cpu.append(rnn_cpu_val)
+        rnn_real.append(rnn_real_val)
+
+        rnn2_costs.append(rnn2_cost)
+        rnn2_expanded.append(rnn2_expanded_val)
+        rnn2_cpu.append(rnn2_cpu_val)
+        rnn2_real.append(rnn2_real_val)
+
+        rnn4_costs.append(rnn4_cost)
+        rnn4_expanded.append(rnn4_expanded_val)
+        rnn4_cpu.append(rnn4_cpu_val)
+        rnn4_real.append(rnn4_real_val)
+
+    # Calculate statistics for each algorithm for this size
+    stats = {
+        'nn': {
+            'costs': calculate_stats(nn_costs),
+            'expanded': calculate_stats(nn_expanded),
+            'cpu': calculate_stats(nn_cpu),
+            'real': calculate_stats(nn_real)
+        },
+        'nn2o': {
+            'costs': calculate_stats(nn2o_costs),
+            'expanded': calculate_stats(nn2o_expanded),
+            'cpu': calculate_stats(nn2o_cpu),
+            'real': calculate_stats(nn2o_real)
+        },
+        'rnn': {
+            'costs': calculate_stats(rnn_costs),
+            'expanded': calculate_stats(rnn_expanded),
+            'cpu': calculate_stats(rnn_cpu),
+            'real': calculate_stats(rnn_real)
+        },
+        'rnn2': {
+            'costs': calculate_stats(rnn2_costs),
+            'expanded': calculate_stats(rnn2_expanded),
+            'cpu': calculate_stats(rnn2_cpu),
+            'real': calculate_stats(rnn2_real)
+        },
+        'rnn4': {
+            'costs': calculate_stats(rnn4_costs),
+            'expanded': calculate_stats(rnn4_expanded),
+            'cpu': calculate_stats(rnn4_cpu),
+            'real': calculate_stats(rnn4_real)
+        }
+    }
+    
+    # Output the stats to a CSV file (optional)
+    with open(f'{size_label}_stats.csv', mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow([f"Algorithm, Cost (avg/min/max), Nodes Expanded (avg/min/max), CPU Run Time (avg/min/max), Real Run Time (avg/min/max)"])
+        writer.writerow([f"NN, {stats['nn']['costs']}, {stats['nn']['expanded']}, {stats['nn']['cpu']}, {stats['nn']['real']}"])
+        writer.writerow([f"NN2-Opt, {stats['nn2o']['costs']}, {stats['nn2o']['expanded']}, {stats['nn2o']['cpu']}, {stats['nn2o']['real']}"])
+        writer.writerow([f"RNN 3, {stats['rnn']['costs']}, {stats['rnn']['expanded']}, {stats['rnn']['cpu']}, {stats['rnn']['real']}"])
+        writer.writerow([f"RNN 2, {stats['rnn2']['costs']}, {stats['rnn2']['expanded']}, {stats['rnn2']['cpu']}, {stats['rnn2']['real']}"])
+        writer.writerow([f"RNN 4, {stats['rnn4']['costs']}, {stats['rnn4']['expanded']}, {stats['rnn4']['cpu']}, {stats['rnn4']['real']}"])
+
+    return stats
+
+
+
+# Part 1 of the assignment
+def main():
+    size_5_graphs = [] 
+    size_10_graphs = []
+    size_15_graphs = []
+    size_20_graphs = []
+    size_25_graphs = []
+    size_30_graphs = []
+
+    for i in range(30):
+        size_5_graphs.append(make_graph(5))
+        size_10_graphs.append(make_graph(10))
+        size_15_graphs.append(make_graph(15))
+        size_20_graphs.append(make_graph(20))
+        size_25_graphs.append(make_graph(25))
+        size_30_graphs.append(make_graph(30))
+
+    size_5_stats = process_graph_family(size_5_graphs, 'Size_5')
+    size_10_stats = process_graph_family(size_10_graphs, 'Size_10')
+    size_15_stats = process_graph_family(size_15_graphs, 'Size_15')
+    size_20_stats = process_graph_family(size_20_graphs, 'Size_20')
+    size_25_stats = process_graph_family(size_25_graphs, 'Size_25')
+    size_30_stats = process_graph_family(size_30_graphs, 'Size_30')
+
+if __name__ == "__main__":
+    main()

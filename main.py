@@ -22,23 +22,10 @@ def main():
     # test_path, test_cost = repeated_randomized_nearest_neighbor_2opt(adjacency_matrix, 10, 3)
 
     # path, cost = A_MST(adjacency_matrix)
-    lol = genetic(adjacency_matrix, True)
+    #lol = genetic(adjacency_matrix, True)
 
     #part 1 of the assignment
-    # size_5_graphs = [] 
-    # size_10_graphs = []
-    # size_15_graphs = []
-    # size_20_graphs = []
-    # size_25_graphs = []
-    # size_30_graphs = []
-
-    # for i in range(30):
-    #     size_5_graphs.append(make_graph(5))
-    #     size_10_graphs.append(make_graph(10))
-    #     size_15_graphs.append(make_graph(15))
-    #     size_20_graphs.append(make_graph(20))
-    #     size_25_graphs.append(make_graph(25))
-    #     size_30_graphs.append(make_graph(30))
+   
         
 
 if __name__ == '__main__':
