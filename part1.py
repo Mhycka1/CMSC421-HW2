@@ -273,17 +273,17 @@ def process_graph_family(size_graphs, size_label):
     }
 
     # Output the stats to a CSV file (optional)
-    with open(f'{size_label}_stats.csv', mode='w', newline='') as file:
+    with open(f'{size_label}_stats_part1.csv', mode='w', newline='') as file:
         writer = csv.writer(file)
 
-        # Define a custom dialect with a space after commas
-        class SpaceDialect(csv.Dialect):
-            delimiter = ' '  # Single space character
+        # Define a custom dialect with a comma delimiter
+        class CommaDialect(csv.Dialect):
+            delimiter = ','  # Comma as the delimiter
             quoting = csv.QUOTE_MINIMAL
             quotechar = '"'  # Add a quote character
             lineterminator = '\n'
-        
-        writer = csv.writer(file, dialect=SpaceDialect)
+
+        writer = csv.writer(file, dialect=CommaDialect)
         writer.writerow(["Statistic", "Average", "Minimum", "Maximum"])
 
         # Writing all algorithm stats in a loop for cleanliness
@@ -294,6 +294,30 @@ def process_graph_family(size_graphs, size_label):
             writer.writerow([f"{algorithm.upper()} Real Time", stats[algorithm]['real']['avg'], stats[algorithm]['real']['min'], stats[algorithm]['real']['max']])
 
     return stats
+
+def read_stats(file_name):
+    costs, nodes_expanded, cpu_time, real_time = {}, {}, {}, {}
+    
+    with open(file_name, mode='r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            # Check if necessary fields are present
+            if 'Statistic' not in row or 'Average' not in row or 'Minimum' not in row or 'Maximum' not in row:
+                print(f"Skipping malformed row: {row}")
+                continue
+            
+            algorithm = row['Statistic'].split()[0]  # Extract the algorithm name
+
+            if "Cost" in row['Statistic']:
+                costs[algorithm] = [float(row['Average']), float(row['Minimum']), float(row['Maximum'])]
+            elif "Nodes Expanded" in row['Statistic']:
+                nodes_expanded[algorithm] = [float(row['Average']), float(row['Minimum']), float(row['Maximum'])]
+            elif "CPU Time" in row['Statistic']:
+                cpu_time[algorithm] = [float(row['Average']), float(row['Minimum']), float(row['Maximum'])]
+            elif "Real Time" in row['Statistic']:
+                real_time[algorithm] = [float(row['Average']), float(row['Minimum']), float(row['Maximum'])]
+
+    return costs, nodes_expanded, cpu_time, real_time
 
 # Part 1 of the assignment
 def main():
@@ -319,6 +343,98 @@ def main():
     size_25_stats = process_graph_family(size_25_graphs, 'Size_25')
     size_30_stats = process_graph_family(size_30_graphs, 'Size_30')
 
+    # Read stats for each size
+    sizes = [5, 10, 15, 20, 25, 30]
+    all_costs, all_nodes, all_cpu, all_real = {}, {}, {}, {}
+
+    for size in sizes:
+        file_name = f'Size_{size}_stats_part1.csv'
+        costs, nodes, cpu, real = read_stats(file_name)
+        
+        all_costs[size] = costs
+        all_nodes[size] = nodes
+        all_cpu[size] = cpu
+        all_real[size] = real
+
+    output_dir = 'part1_result_graphs'
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Define color mapping for algorithms
+    color_map = {
+        'NN': 'tab:blue',
+        'NN2O': 'tab:orange',
+        'RNN': 'tab:green',
+        'RNN2': 'tab:red',
+        'RNN4': 'tab:purple',
+    }
+
+    # Plot for Cost and Nodes Expanded
+    fig, ax1 = plt.subplots()
+
+    ax1.set_xlabel('Graph Size')
+    ax1.set_ylabel('Total Cost')
+
+    # Plot costs
+    for algorithm in all_costs[5]:  # Using the keys from size 5
+        color = color_map.get(algorithm.split()[0], 'black')  # Get base algorithm name for color
+        ax1.plot(sizes, [all_costs[size][algorithm][0] for size in sizes], 
+                 label=f'{algorithm} Cost', marker='o', color=color)
+
+    ax1.tick_params(axis='y')
+
+    ax2 = ax1.twinx()
+    ax2.set_ylabel('Nodes Expanded')
+
+    # Plot nodes expanded
+    for algorithm in all_nodes[5]:
+        color = color_map.get(algorithm.split()[0], 'black')  # Get base algorithm name for color
+        ax2.plot(sizes, [all_nodes[size][algorithm][0] for size in sizes], 
+                 label=f'{algorithm} Nodes', linestyle='--', color=color)
+
+    ax2.tick_params(axis='y')
+
+    fig.tight_layout()
+    ax1.legend(loc='upper left')
+    ax2.legend(loc='upper right')
+    plt.title('Total Cost and Nodes Expanded for Different Algorithms')
+
+    # Save the figure
+    plt.savefig(os.path.join(output_dir, 'cost_and_nodes.png'))
+    plt.close()  # Close the figure
+
+    # Plot for CPU and Real-World Runtime
+    fig, ax3 = plt.subplots()
+
+    ax3.set_xlabel('Graph Size')
+    ax3.set_ylabel('CPU Time')
+
+    # Plot CPU times
+    for algorithm in all_cpu[5]:
+        color = color_map.get(algorithm.split()[0], 'black')  # Get base algorithm name for color
+        ax3.plot(sizes, [all_cpu[size][algorithm][0] for size in sizes], 
+                 label=f'{algorithm} CPU Time', marker='o', color=color)
+
+    ax3.tick_params(axis='y')
+
+    ax4 = ax3.twinx()
+    ax4.set_ylabel('Real Time')
+
+    # Plot real times
+    for algorithm in all_real[5]:
+        color = color_map.get(algorithm.split()[0], 'black')  # Get base algorithm name for color
+        ax4.plot(sizes, [all_real[size][algorithm][0] for size in sizes], 
+                 label=f'{algorithm} Real Time', linestyle='--', color=color)
+
+    ax4.tick_params(axis='y')
+
+    fig.tight_layout()
+    ax3.legend(loc='upper left')
+    ax4.legend(loc='upper right')
+    plt.title('CPU Time and Real-World Runtime for Different Algorithms')
+
+    # Save the figure
+    plt.savefig(os.path.join(output_dir, 'cpu_and_real_time.png'))
+    plt.close()  # Close the figure
     
 
     
