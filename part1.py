@@ -9,6 +9,7 @@ import psutil  # for CPU time
 import matplotlib.pyplot as plt
 
 
+
 # #method to generate graphs
 def make_graph(node_amount):
     graph = nx.Graph()
@@ -273,7 +274,7 @@ def process_graph_family(size_graphs, size_label):
     }
 
     # Output the stats to a CSV file (optional)
-    with open(f'{size_label}_stats_part1.csv', mode='w', newline='') as file:
+    with open(f'{size_label}_stats.csv', mode='w', newline='') as file:
         writer = csv.writer(file)
 
         # Define a custom dialect with a comma delimiter
@@ -319,38 +320,17 @@ def read_stats(file_name):
 
     return costs, nodes_expanded, cpu_time, real_time
 
-# Part 1 of the assignment
-def main():
-    size_5_graphs = [] 
-    size_10_graphs = []
-    size_15_graphs = []
-    size_20_graphs = []
-    size_25_graphs = []
-    size_30_graphs = []
 
-    for i in range(30):
-        size_5_graphs.append(make_graph(5))
-        size_10_graphs.append(make_graph(10))
-        size_15_graphs.append(make_graph(15))
-        size_20_graphs.append(make_graph(20))
-        size_25_graphs.append(make_graph(25))
-        size_30_graphs.append(make_graph(30))
 
-    size_5_stats = process_graph_family(size_5_graphs, 'Size_5')
-    size_10_stats = process_graph_family(size_10_graphs, 'Size_10')
-    size_15_stats = process_graph_family(size_15_graphs, 'Size_15')
-    size_20_stats = process_graph_family(size_20_graphs, 'Size_20')
-    size_25_stats = process_graph_family(size_25_graphs, 'Size_25')
-    size_30_stats = process_graph_family(size_30_graphs, 'Size_30')
-
-    # Read stats for each size
+def make_part1_graphs():
+# Read stats for each size
     sizes = [5, 10, 15, 20, 25, 30]
     all_costs, all_nodes, all_cpu, all_real = {}, {}, {}, {}
 
     for size in sizes:
         file_name = f'Size_{size}_stats_part1.csv'
         costs, nodes, cpu, real = read_stats(file_name)
-        
+
         all_costs[size] = costs
         all_nodes[size] = nodes
         all_cpu[size] = cpu
@@ -368,7 +348,7 @@ def main():
         'RNN4': 'tab:purple',
     }
 
-    # Plot for Cost and Nodes Expanded
+    # Plot for Total Cost and Graph Size
     fig, ax1 = plt.subplots()
 
     ax1.set_xlabel('Graph Size')
@@ -378,25 +358,23 @@ def main():
     for algorithm in all_costs[5]:  # Using the keys from size 5
         color = color_map.get(algorithm.split()[0], 'black')  # Get base algorithm name for color
         ax1.plot(sizes, [all_costs[size][algorithm][0] for size in sizes], 
-                 label=f'{algorithm} Cost', marker='o', color=color)
+                    label=f'{algorithm} Cost', marker='o', color=color)
 
     ax1.tick_params(axis='y')
 
+    # Create second y-axis with the same values as the x-axis
     ax2 = ax1.twinx()
-    ax2.set_ylabel('Nodes Expanded')
+    ax2.set_ylabel('Graph Size')
 
-    # Plot nodes expanded
-    for algorithm in all_nodes[5]:
-        color = color_map.get(algorithm.split()[0], 'black')  # Get base algorithm name for color
-        ax2.plot(sizes, [all_nodes[size][algorithm][0] for size in sizes], 
-                 label=f'{algorithm} Nodes', linestyle='--', color=color)
+    # Plot graph size on the secondary y-axis (just a straight line for visual reference)
+    ax2.plot(sizes, sizes, linestyle='--', color='gray', label='Graph Size (Reference)')
 
     ax2.tick_params(axis='y')
 
     fig.tight_layout()
     ax1.legend(loc='upper left')
     ax2.legend(loc='upper right')
-    plt.title('Total Cost and Nodes Expanded for Different Algorithms')
+    plt.title('Total Cost and Graph Size for Different Algorithms')
 
     # Save the figure
     plt.savefig(os.path.join(output_dir, 'cost_and_nodes.png'))
@@ -412,7 +390,7 @@ def main():
     for algorithm in all_cpu[5]:
         color = color_map.get(algorithm.split()[0], 'black')  # Get base algorithm name for color
         ax3.plot(sizes, [all_cpu[size][algorithm][0] for size in sizes], 
-                 label=f'{algorithm} CPU Time', marker='o', color=color)
+                    label=f'{algorithm} CPU Time', marker='o', color=color)
 
     ax3.tick_params(axis='y')
 
@@ -423,7 +401,7 @@ def main():
     for algorithm in all_real[5]:
         color = color_map.get(algorithm.split()[0], 'black')  # Get base algorithm name for color
         ax4.plot(sizes, [all_real[size][algorithm][0] for size in sizes], 
-                 label=f'{algorithm} Real Time', linestyle='--', color=color)
+                    label=f'{algorithm} Real Time', linestyle='--', color=color)
 
     ax4.tick_params(axis='y')
 
@@ -435,9 +413,131 @@ def main():
     # Save the figure
     plt.savefig(os.path.join(output_dir, 'cpu_and_real_time.png'))
     plt.close()  # Close the figure
+
+# Part 1 of the assignment
+# def main():
+#     size_5_graphs = [] 
+#     size_10_graphs = []
+#     size_15_graphs = []
+#     size_20_graphs = []
+#     size_25_graphs = []
+#     size_30_graphs = []
+
+#     for i in range(30):
+#         size_5_graphs.append(make_graph(5))
+#         size_10_graphs.append(make_graph(10))
+#         size_15_graphs.append(make_graph(15))
+#         size_20_graphs.append(make_graph(20))
+#         size_25_graphs.append(make_graph(25))
+#         size_30_graphs.append(make_graph(30))
+
+#     size_fives = size_5_graphs
+#     size_tens = size_10_graphs
+#     size_fifteens = size_15_graphs
+#     size_twenties = size_20_graphs
+#     size_twenty_fives = size_25_graphs
+#     size_thirtys = size_30_graphs
+
+#     size_5_stats = process_graph_family(size_5_graphs, 'Size_5')
+#     size_10_stats = process_graph_family(size_10_graphs, 'Size_10')
+#     size_15_stats = process_graph_family(size_15_graphs, 'Size_15')
+#     size_20_stats = process_graph_family(size_20_graphs, 'Size_20')
+#     size_25_stats = process_graph_family(size_25_graphs, 'Size_25')
+#     size_30_stats = process_graph_family(size_30_graphs, 'Size_30')
+
+#     # Read stats for each size
+#     sizes = [5, 10, 15, 20, 25, 30]
+#     all_costs, all_nodes, all_cpu, all_real = {}, {}, {}, {}
+
+#     for size in sizes:
+#         file_name = f'Size_{size}_stats_part1.csv'
+#         costs, nodes, cpu, real = read_stats(file_name)
+
+#         all_costs[size] = costs
+#         all_nodes[size] = nodes
+#         all_cpu[size] = cpu
+#         all_real[size] = real
+
+#     output_dir = 'part1_result_graphs'
+#     os.makedirs(output_dir, exist_ok=True)
+
+#     # Define color mapping for algorithms
+#     color_map = {
+#         'NN': 'tab:blue',
+#         'NN2O': 'tab:orange',
+#         'RNN': 'tab:green',
+#         'RNN2': 'tab:red',
+#         'RNN4': 'tab:purple',
+#     }
+
+#     # Plot for Total Cost and Graph Size
+#     fig, ax1 = plt.subplots()
+
+#     ax1.set_xlabel('Graph Size')
+#     ax1.set_ylabel('Total Cost')
+
+#     # Plot costs
+#     for algorithm in all_costs[5]:  # Using the keys from size 5
+#         color = color_map.get(algorithm.split()[0], 'black')  # Get base algorithm name for color
+#         ax1.plot(sizes, [all_costs[size][algorithm][0] for size in sizes], 
+#                  label=f'{algorithm} Cost', marker='o', color=color)
+
+#     ax1.tick_params(axis='y')
+
+#     # Create second y-axis with the same values as the x-axis
+#     ax2 = ax1.twinx()
+#     ax2.set_ylabel('Graph Size')
+
+#     # Plot graph size on the secondary y-axis (just a straight line for visual reference)
+#     ax2.plot(sizes, sizes, linestyle='--', color='gray', label='Graph Size (Reference)')
+    
+#     ax2.tick_params(axis='y')
+
+#     fig.tight_layout()
+#     ax1.legend(loc='upper left')
+#     ax2.legend(loc='upper right')
+#     plt.title('Total Cost and Graph Size for Different Algorithms')
+
+#     # Save the figure
+#     plt.savefig(os.path.join(output_dir, 'cost_and_nodes.png'))
+#     plt.close()  # Close the figure
+
+#     # Plot for CPU and Real-World Runtime (left unchanged)
+#     fig, ax3 = plt.subplots()
+
+#     ax3.set_xlabel('Graph Size')
+#     ax3.set_ylabel('CPU Time')
+
+#     # Plot CPU times
+#     for algorithm in all_cpu[5]:
+#         color = color_map.get(algorithm.split()[0], 'black')  # Get base algorithm name for color
+#         ax3.plot(sizes, [all_cpu[size][algorithm][0] for size in sizes], 
+#                  label=f'{algorithm} CPU Time', marker='o', color=color)
+
+#     ax3.tick_params(axis='y')
+
+#     ax4 = ax3.twinx()
+#     ax4.set_ylabel('Real Time')
+
+#     # Plot real times
+#     for algorithm in all_real[5]:
+#         color = color_map.get(algorithm.split()[0], 'black')  # Get base algorithm name for color
+#         ax4.plot(sizes, [all_real[size][algorithm][0] for size in sizes], 
+#                  label=f'{algorithm} Real Time', linestyle='--', color=color)
+
+#     ax4.tick_params(axis='y')
+
+#     fig.tight_layout()
+#     ax3.legend(loc='upper left')
+#     ax4.legend(loc='upper right')
+#     plt.title('CPU Time and Real-World Runtime for Different Algorithms')
+
+#     # Save the figure
+#     plt.savefig(os.path.join(output_dir, 'cpu_and_real_time.png'))
+#     plt.close()  # Close the figure
     
 
     
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

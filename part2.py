@@ -1,6 +1,8 @@
 import heapq
 import numpy as np
 import networkx as nx 
+from part1 import make_graph
+
 
 # help adapted from chatgpt prompt
 def mst_heuristic(adj_matrix, unvisited):
@@ -71,3 +73,19 @@ def A_MST(adj_matrix):
                 heapq.heappush(pq, (f_n, new_state))
     
     return None, float('inf')  # If no solution found
+
+def main():
+    size_5_graphs = [] 
+    size_10_graphs = []
+    size_15_graphs = []
+    size_20_graphs = []
+    size_25_graphs = []
+    size_30_graphs = []
+
+    for i in range(30):
+        size_5_graphs.append(make_graph(5))
+        size_10_graphs.append(make_graph(10))
+        size_15_graphs.append(make_graph(15))
+        size_20_graphs.append(make_graph(20))
+        size_25_graphs.append(make_graph(25))
+        size_30_graphs.append(make_graph(30))
