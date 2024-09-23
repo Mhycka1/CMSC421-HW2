@@ -117,7 +117,7 @@ def run_A_star(size_graphs, size_label):
     }
 
     # Output the stats to a CSV file (optional)
-    with open(f'{size_label}_A*_stats.csv', mode='w', newline='') as file:
+    with open(f'A_Star_{size_label}_stats.csv', mode='w', newline='') as file:
         writer = csv.writer(file)
 
         # Define a custom dialect with a comma delimiter
