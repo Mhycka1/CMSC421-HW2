@@ -17,14 +17,12 @@ def main():
         matrix.append([int(x) for x in line.split()])  
     adjacency_matrix = np.array(matrix)
 
-    # path, cost = nearest_neighbor(adjacency_matrix, 0, True)
-    # best = nearest_neighbor_2opt(adjacency_matrix)
-    # test_path, test_cost = repeated_randomized_nearest_neighbor_2opt(adjacency_matrix, 10, 3)
+    nn_path, nn_cost, nn_nodes_expanded, nn_cpu_run_time, nn_real_run_time = nearest_neighbor(adjacency_matrix, 0, True)
+    nn2_path, nn2_cost, nn2_nodes_expanded, nn2_cpu_run_time, nn2_real_run_time = nearest_neighbor_2opt(adjacency_matrix, True)
+    rnn_path, rnn_cost, rnn_nodes_expanded, rnn_cpu_run_time, rnn_real_run_time = repeated_randomized_nearest_neighbor_2opt(adjacency_matrix, 10, 3, True)
 
-    # path, cost = A_MST(adjacency_matrix)
-    #lol = genetic(adjacency_matrix, True)
-
-    #part 1 of the assignment
+    
+    print(f'NN nodes expanded: {nn2_nodes_expanded}, NN2O nodes expanded: {nn2_nodes_expanded}, RNN nodes expanded: {rnn_nodes_expanded}')
    
         
 
