@@ -1,7 +1,9 @@
 import heapq
+import time
 import numpy as np
+import csv
 import networkx as nx 
-from part1 import make_graph
+from part1 import make_graph, calculate_stats
 
 
 # help adapted from chatgpt prompt
@@ -35,6 +37,11 @@ def A_MST(adj_matrix):
     heapq.heappush(pq, (0, initial_state))
     
     visited_states = set()  # To track visited states
+    nodes_expanded = 0  # Track the number of nodes expanded
+
+    # Track CPU and real-world time
+    start_cpu_time = time.process_time()  # CPU time
+    start_real_time = time.time()  # Real-world time
 
     while pq:
         # Pop the state with the smallest f(n) = g(n) + h(n)
@@ -45,13 +52,20 @@ def A_MST(adj_matrix):
             continue
         visited_states.add(state_tuple)
         
+        # Increment the node expansion counter
+        nodes_expanded += 1
+
         # If all cities are visited and we are back at the start, goal state is achieved
         if len(visited) == N:
             # Add the cost to return to the start city to complete the tour
             return_to_start_cost = adj_matrix[current_city][start_city]
-            #note i got rid of the return to start cost, didn't think i'd need it
-            total_cost = g_n 
-            return path, total_cost
+            total_cost = g_n  # We're not adding return_to_start_cost
+            
+            # Calculate CPU and real-world runtime
+            cpu_runtime = time.process_time() - start_cpu_time
+            real_runtime = time.time() - start_real_time
+            
+            return path, total_cost, nodes_expanded, cpu_runtime, real_runtime
         
         # Expand successors (visit next city)
         for next_city in range(N):
@@ -72,20 +86,54 @@ def A_MST(adj_matrix):
                 # Push the new state into the priority queue
                 heapq.heappush(pq, (f_n, new_state))
     
-    return None, float('inf')  # If no solution found
+    # If no solution found, return large values for cost and zero for times
+    cpu_runtime = time.process_time() - start_cpu_time
+    real_runtime = time.time() - start_real_time
+    return None, float('inf'), nodes_expanded, cpu_runtime, real_runtime
 
-def main():
-    size_5_graphs = [] 
-    size_10_graphs = []
-    size_15_graphs = []
-    size_20_graphs = []
-    size_25_graphs = []
-    size_30_graphs = []
+def run_A_star(size_graphs, size_label):
+    # Initialize lists for storing results
+    costs, expanded, cpu, real = [], [], [], []
 
-    for i in range(30):
-        size_5_graphs.append(make_graph(5))
-        size_10_graphs.append(make_graph(10))
-        size_15_graphs.append(make_graph(15))
-        size_20_graphs.append(make_graph(20))
-        size_25_graphs.append(make_graph(25))
-        size_30_graphs.append(make_graph(30))
+    # Loop through each graph in the family
+    for graph in size_graphs:
+        # Run A* algorithm and append results
+        path, cost, expanded_val, cpu_val, real_val = A_MST(graph)
+        
+        # Append results for each graph
+        costs.append(cost)
+        expanded.append(expanded_val)
+        cpu.append(cpu_val)
+        real.append(real_val)
+
+    # Calculate statistics for A* algorithm for this size
+    stats = {
+        'A_star': {
+            'costs': calculate_stats(costs),
+            'expanded': calculate_stats(expanded),
+            'cpu': calculate_stats(cpu),
+            'real': calculate_stats(real)
+        }
+    }
+
+    # Output the stats to a CSV file (optional)
+    with open(f'{size_label}_A*_stats.csv', mode='w', newline='') as file:
+        writer = csv.writer(file)
+
+        # Define a custom dialect with a comma delimiter
+        class CommaDialect(csv.Dialect):
+            delimiter = ','  # Comma as the delimiter
+            quoting = csv.QUOTE_MINIMAL
+            quotechar = '"'  # Add a quote character
+            lineterminator = '\n'
+
+        writer = csv.writer(file, dialect=CommaDialect)
+        writer.writerow(["Statistic", "Average", "Minimum", "Maximum"])
+
+        # Writing A* stats
+        writer.writerow(["A* Cost", stats['A_star']['costs']['avg'], stats['A_star']['costs']['min'], stats['A_star']['costs']['max']])
+        writer.writerow(["A* Nodes Expanded", stats['A_star']['expanded']['avg'], stats['A_star']['expanded']['min'], stats['A_star']['expanded']['max']])
+        writer.writerow(["A* CPU Time", stats['A_star']['cpu']['avg'], stats['A_star']['cpu']['min'], stats['A_star']['cpu']['max']])
+        writer.writerow(["A* Real Time", stats['A_star']['real']['avg'], stats['A_star']['real']['min'], stats['A_star']['real']['max']])
+
+    return stats
