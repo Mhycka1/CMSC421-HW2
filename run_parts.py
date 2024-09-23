@@ -12,7 +12,6 @@ def main():
     size_30_graphs = []
 
     for i in range(30):
-        print('happening')
         size_5_graphs.append(make_graph(5))
         size_10_graphs.append(make_graph(10))
         size_15_graphs.append(make_graph(15))
@@ -29,3 +28,6 @@ def main():
     size_30_stats = process_graph_family(size_30_graphs, 'Size_30')
 
     make_part1_graphs()
+
+if __name__ == "__main__":
+    main()
