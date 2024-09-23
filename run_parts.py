@@ -19,6 +19,8 @@ def main():
         size_25_graphs.append(make_graph(25))
         size_30_graphs.append(make_graph(30))
 
+    print(size_5_graphs)
+
     size_5_stats = process_graph_family(size_5_graphs, 'Size_5')
     size_10_stats = process_graph_family(size_10_graphs, 'Size_10')
     size_15_stats = process_graph_family(size_15_graphs, 'Size_15')
