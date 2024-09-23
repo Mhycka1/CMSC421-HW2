@@ -12,6 +12,7 @@ def main():
     size_30_graphs = []
 
     for i in range(30):
+        print('happening')
         size_5_graphs.append(make_graph(5))
         size_10_graphs.append(make_graph(10))
         size_15_graphs.append(make_graph(15))
@@ -19,7 +20,6 @@ def main():
         size_25_graphs.append(make_graph(25))
         size_30_graphs.append(make_graph(30))
 
-    print(size_5_graphs)
 
     size_5_stats = process_graph_family(size_5_graphs, 'Size_5')
     size_10_stats = process_graph_family(size_10_graphs, 'Size_10')
