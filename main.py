@@ -23,7 +23,6 @@ def main():
 
     
     print(f'NN nodes expanded: {nn2_nodes_expanded}, NN2O nodes expanded: {nn2_nodes_expanded}, RNN nodes expanded: {rnn_nodes_expanded}')
-   
         
 
 if __name__ == '__main__':

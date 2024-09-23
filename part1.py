@@ -138,7 +138,9 @@ def repeated_randomized_nearest_neighbor_2opt(adj_matrix, iterations=10, n=3, ma
         mask = np.ones(N, dtype=bool) 
         mask[start_node % N] = False
 
-        nodes_expanded = 0
+        #nodes_expanded = 0
+        path_nodes_expanded = 0
+        opt_nodes_expanded = 0
 
         for i in range(N - 1):
             last = path[-1]
@@ -153,7 +155,8 @@ def repeated_randomized_nearest_neighbor_2opt(adj_matrix, iterations=10, n=3, ma
             path.append(int(next_loc))
             mask[next_loc] = False
             cost += adj_matrix[last, next_loc]
-            nodes_expanded += 1
+            #nodes_expanded += 1
+            path_nodes_expanded += 1
 
         # 2-Opt Optimization
         best_route = path
@@ -166,8 +169,8 @@ def repeated_randomized_nearest_neighbor_2opt(adj_matrix, iterations=10, n=3, ma
                     if cost_change(adj_matrix, best_route[i - 1], best_route[i], best_route[j - 1], best_route[j]) < 0:
                         best_route[i:j] = best_route[j - 1:i - 1:-1]
                         improved = True
-                        total_nodes_expanded += 1
-        
+                        opt_nodes_expanded += 1
+        total_nodes_expanded = path_nodes_expanded + opt_nodes_expanded
         total_cost = sum(adj_matrix[best_route[i], best_route[i + 1]] for i in range(len(best_route) - 1))
 
         if total_cost < best_cost:
