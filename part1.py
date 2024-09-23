@@ -328,9 +328,11 @@ def make_part1_graphs():
     all_costs, all_nodes, all_cpu, all_real = {}, {}, {}, {}
 
     for size in sizes:
-        file_name = f'Size_{size}_stats_part1.csv'
+        file_name = f'Size_{size}_stats.csv'
+        print(f"Reading from: {file_name}")
         costs, nodes, cpu, real = read_stats(file_name)
-
+        print(f"Costs: {costs}")
+        
         all_costs[size] = costs
         all_nodes[size] = nodes
         all_cpu[size] = cpu
