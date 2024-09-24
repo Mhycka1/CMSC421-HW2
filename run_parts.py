@@ -47,12 +47,12 @@ def main():
         size_9_graphs.append(make_graph(9))
         size_10_graphs.append(make_graph(10))
 
-    a_5 = run_A_star(size_5_graphs, '5')
-    a_6 = run_A_star(size_6_graphs, '6')
-    a_7 = run_A_star(size_7_graphs, '7')
-    a_8 = run_A_star(size_8_graphs, '8')
-    a_9 = run_A_star(size_9_graphs, '9')
-    a_10 = run_A_star(size_10_graphs, '10')
+    a_5 = run_A_star(size_5_graphs)
+    a_6 = run_A_star(size_6_graphs)
+    a_7 = run_A_star(size_7_graphs)
+    a_8 = run_A_star(size_8_graphs)
+    a_9 = run_A_star(size_9_graphs)
+    a_10 = run_A_star(size_10_graphs)
 
     nn_5 = run_nn(size_5_graphs)
     nn_6 = run_nn(size_6_graphs)

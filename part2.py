@@ -100,13 +100,11 @@ def run_A_star(size_graphs):
         results.append((cost, expanded_val))
 
     # Calculate statistics
-    costs, expanded, cpu, real = zip(*results)  # Unzip results
+    costs, expanded = zip(*results)  # Unzip results
     stats = {
         'A_star': {
             'costs': calculate_stats(costs),
             'expanded': calculate_stats(expanded),
-            'cpu': calculate_stats(cpu),
-            'real': calculate_stats(real)
         }
     }
 
@@ -123,13 +121,11 @@ def run_nn(size_graphs):
         results.append((cost, expanded_val))
 
     # Calculate statistics
-    costs, expanded, cpu, real = zip(*results)  # Unzip results
+    costs, expanded= zip(*results)  # Unzip results
     stats = {
         'nn': {
             'costs': calculate_stats(costs),
             'expanded': calculate_stats(expanded),
-            'cpu': calculate_stats(cpu),
-            'real': calculate_stats(real)
         }
     }
 
@@ -144,13 +140,11 @@ def run_nn2o(size_graphs):
         results.append((cost, expanded_val))
 
     # Calculate statistics
-    costs, expanded, cpu, real = zip(*results)  # Unzip results
+    costs, expanded = zip(*results)  # Unzip results
     stats = {
         'nn': {
             'costs': calculate_stats(costs),
             'expanded': calculate_stats(expanded),
-            'cpu': calculate_stats(cpu),
-            'real': calculate_stats(real)
         }
     }
 
@@ -165,13 +159,11 @@ def run_rnn(size_graphs):
         results.append((cost, expanded_val))
 
     # Calculate statistics
-    costs, expanded, cpu, real = zip(*results)  # Unzip results
+    costs, expanded = zip(*results)  # Unzip results
     stats = {
         'nn': {
             'costs': calculate_stats(costs),
             'expanded': calculate_stats(expanded),
-            'cpu': calculate_stats(cpu),
-            'real': calculate_stats(real)
         }
     }
 
