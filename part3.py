@@ -270,7 +270,43 @@ def run_hill_climbing(size_graphs, restarts=1):
     # Calculate statistics
     costs, expanded = zip(*results)  # Unzip results
     stats = {
-        'nn': {
+        'hillClimbing': {
+            'costs': calculate_stats(costs),
+            'expanded': calculate_stats(expanded),
+        }
+    }
+
+    return results
+
+def run_simuAnnealing(size_graphs, restarts=1, initial_temp=1000, alpha=0.95):
+    results = []  # Store (cost, expanded, cpu, real) for each graph
+
+    for graph in size_graphs:
+        path, cost, expanded_val, cpu_val, real_val = simuAnnealing(graph, False, restarts, initial_temp, alpha)
+        results.append((cost, expanded_val))
+
+    # Calculate statistics
+    costs, expanded = zip(*results)  # Unzip results
+    stats = {
+        'simuAnnealing': {
+            'costs': calculate_stats(costs),
+            'expanded': calculate_stats(expanded),
+        }
+    }
+
+    return results
+
+def run_genetic(size_graphs, generations=100, approach="roulette", cross_prob=0.8, cross_length=3, mutation_rate=0.01):
+    results = []  # Store (cost, expanded, cpu, real) for each graph
+
+    for graph in size_graphs:
+        path, cost, expanded_val, cpu_val, real_val = genetic(graph, False, generations, approach, cross_prob, cross_length, mutation_rate, 100)
+        results.append((cost, expanded_val))
+
+    # Calculate statistics
+    costs, expanded = zip(*results)  # Unzip results
+    stats = {
+        'simuAnnealing': {
             'costs': calculate_stats(costs),
             'expanded': calculate_stats(expanded),
         }
