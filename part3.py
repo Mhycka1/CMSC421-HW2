@@ -5,6 +5,7 @@ import random
 import numpy as np
 import csv
 import math
+from part2 import calculate_stats
 
 
 def value(adj_matrix, path):
@@ -257,3 +258,22 @@ def genetic(adj_matrix, make_file, generations=100, selection_type="roulette",
                              f"CPU Run Time: {cpu_run_time:.6f} seconds, Real-World Run Time: {real_run_time:.6f} seconds"])
 
     return best_path, best_cost, total_nodes_expanded, cpu_run_time, real_run_time
+
+
+def run_hill_climbing(size_graphs, restarts=1):
+    results = []  # Store (cost, expanded, cpu, real) for each graph
+
+    for graph in size_graphs:
+        path, cost, expanded_val, cpu_val, real_val = hillClimbing(graph, False, restarts)
+        results.append((cost, expanded_val))
+
+    # Calculate statistics
+    costs, expanded = zip(*results)  # Unzip results
+    stats = {
+        'nn': {
+            'costs': calculate_stats(costs),
+            'expanded': calculate_stats(expanded),
+        }
+    }
+
+    return results

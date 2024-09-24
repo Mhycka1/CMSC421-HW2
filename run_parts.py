@@ -123,6 +123,14 @@ def main():
             }
 
     make_part2_graphs(statistics)
+
+    #part 3
+    a_5 = run_A_star(size_5_graphs)
+    a_6 = run_A_star(size_6_graphs)
+    a_7 = run_A_star(size_7_graphs)
+    a_8 = run_A_star(size_8_graphs)
+    a_9 = run_A_star(size_9_graphs)
+    a_10 = run_A_star(size_10_graphs)
         
     
 
