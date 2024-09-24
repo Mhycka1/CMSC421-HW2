@@ -182,3 +182,68 @@ def compute_differences(a_results, other_results):
         expanded_diffs.append(a_expanded - other_expanded)  # A* expanded nodes minus other algorithm's expanded nodes
     
     return cost_diffs, expanded_diffs
+
+def make_part2_graphs(statistics):
+    output_dir = 'part2_result_graphs'
+    os.makedirs(output_dir, exist_ok=True)
+
+    sizes = ['5', '6', '7', '8', '9', '10']
+    algorithms = ['nn', 'nn2o', 'rnn']  # Add more if you have more algorithms
+
+    # Create a plot for Total Cost Differences
+    plt.figure(figsize=(12, 6))
+
+    colors = {'nn': 'blue', 'nn2o': 'green', 'rnn': 'red'}
+    styles = {'nn': '-', 'nn2o': '--', 'rnn': '-.'}
+    markers = {'nn': 'o', 'nn2o': 's', 'rnn': '^'}
+
+    for algorithm in algorithms:
+        avg_costs = [statistics[size][algorithm]['cost_stats']['avg'] for size in sizes]
+        min_costs = [statistics[size][algorithm]['cost_stats']['min'] for size in sizes]
+        max_costs = [statistics[size][algorithm]['cost_stats']['max'] for size in sizes]
+        
+        # Plot the average line
+        plt.plot(sizes, avg_costs, marker=markers[algorithm], label=f'{algorithm} - Avg', linestyle=styles[algorithm], color=colors[algorithm])
+
+        # Add a small offset for nn2o to prevent exact overlap if needed
+        offset = 0 if algorithm != 'nn2o' else 0.5
+        
+        # Fill the min/max area with transparency and optional offset
+        plt.fill_between(sizes, [min_c - offset for min_c in min_costs], [max_c - offset for max_c in max_costs], 
+                        alpha=0.3, label=f'{algorithm} - Min/Max', color=colors[algorithm], edgecolor='black', linewidth=0.5)
+
+    plt.title('Performance Differences in Total Cost')
+    plt.xlabel('Graph Size')
+    plt.ylabel('Difference in Cost')
+    plt.xticks(sizes)
+    plt.legend()
+    plt.grid()
+
+    # Save the plot to a file in the specified folder
+    plt.savefig(os.path.join(output_dir, 'total_cost_differences.png'))
+    plt.close()  # Close the figure to free up memory
+
+    # Create a plot for Nodes Expanded Differences
+    plt.figure(figsize=(12, 6))
+
+    for algorithm in algorithms:
+        avg_expanded = [statistics[size][algorithm]['expanded_stats']['avg'] for size in sizes]
+        min_expanded = [statistics[size][algorithm]['expanded_stats']['min'] for size in sizes]
+        max_expanded = [statistics[size][algorithm]['expanded_stats']['max'] for size in sizes]
+        
+        # Plot the average line
+        plt.plot(sizes, avg_expanded, marker=markers[algorithm], label=f'{algorithm} - Avg', linestyle=styles[algorithm], color=colors[algorithm])
+        
+        # Fill the min/max area with transparency
+        plt.fill_between(sizes, min_expanded, max_expanded, alpha=0.3, label=f'{algorithm} - Min/Max', color=colors[algorithm], edgecolor='black', linewidth=0.5)
+
+    plt.title('Performance Differences in Nodes Expanded')
+    plt.xlabel('Graph Size')
+    plt.ylabel('Difference in Nodes Expanded')
+    plt.xticks(sizes)
+    plt.legend()
+    plt.grid()
+
+    # Save the plot to a file in the specified folder
+    plt.savefig(os.path.join(output_dir, 'nodes_expanded_differences.png'))
+    plt.close()  # Close the figure to free up memory

@@ -1,6 +1,6 @@
 # here is where all the parts will be run
 from part1 import make_graph, process_graph_family, make_part1_graphs, read_stats
-from part2 import run_A_star, run_nn, run_nn2o, run_rnn, compute_differences
+from part2 import run_A_star, run_nn, run_nn2o, run_rnn, compute_differences, make_part2_graphs
 import os
 import matplotlib.pyplot as plt
 import numpy as np
@@ -122,55 +122,7 @@ def main():
                 },
             }
 
-    output_dir = 'part2_result_graphs'
-    os.makedirs(output_dir, exist_ok=True)
-
-    sizes = ['5', '6', '7', '8', '9', '10']
-    algorithms = ['nn', 'nn2o', 'rnn']  # Add more if you have more algorithms
-
-    # Create a plot for Total Cost Differences
-    plt.figure(figsize=(12, 6))
-
-    for algorithm in algorithms:
-        avg_costs = [statistics[size][algorithm]['cost_stats']['avg'] for size in sizes]
-        min_costs = [statistics[size][algorithm]['cost_stats']['min'] for size in sizes]
-        max_costs = [statistics[size][algorithm]['cost_stats']['max'] for size in sizes]
-        
-        plt.plot(sizes, avg_costs, marker='o', label=f'{algorithm} - Avg', linestyle='-')
-        plt.fill_between(sizes, min_costs, max_costs, alpha=0.2, label=f'{algorithm} - Min/Max')
-
-    plt.title('Performance Differences in Total Cost')
-    plt.xlabel('Graph Size')
-    plt.ylabel('Difference in Cost')
-    plt.xticks(sizes)
-    plt.legend()
-    plt.grid()
-
-    # Save the plot to a file in the specified folder
-    plt.savefig(os.path.join(output_dir, 'total_cost_differences.png'))
-    plt.close()  # Close the figure to free up memory
-
-    # Create a plot for Nodes Expanded Differences
-    plt.figure(figsize=(12, 6))
-
-    for algorithm in algorithms:
-        avg_expanded = [statistics[size][algorithm]['expanded_stats']['avg'] for size in sizes]
-        min_expanded = [statistics[size][algorithm]['expanded_stats']['min'] for size in sizes]
-        max_expanded = [statistics[size][algorithm]['expanded_stats']['max'] for size in sizes]
-        
-        plt.plot(sizes, avg_expanded, marker='o', label=f'{algorithm} - Avg', linestyle='-')
-        plt.fill_between(sizes, min_expanded, max_expanded, alpha=0.2, label=f'{algorithm} - Min/Max')
-
-    plt.title('Performance Differences in Nodes Expanded')
-    plt.xlabel('Graph Size')
-    plt.ylabel('Difference in Nodes Expanded')
-    plt.xticks(sizes)
-    plt.legend()
-    plt.grid()
-
-    # Save the plot to a file in the specified folder
-    plt.savefig(os.path.join(output_dir, 'nodes_expanded_differences.png'))
-    plt.close()  # Close the figure to free up memory
+    make_part2_graphs(statistics)
         
     
 
