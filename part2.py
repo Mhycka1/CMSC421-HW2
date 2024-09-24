@@ -3,7 +3,7 @@ import time
 import numpy as np
 import csv
 import networkx as nx 
-from part1 import make_graph, calculate_stats
+from part1 import make_graph, calculate_stats, nearest_neighbor, nearest_neighbor_2opt, repeated_randomized_nearest_neighbor_2opt
 
 
 # help adapted from chatgpt prompt
@@ -91,22 +91,16 @@ def A_MST(adj_matrix):
     real_runtime = time.time() - start_real_time
     return None, float('inf'), nodes_expanded, cpu_runtime, real_runtime
 
-def run_A_star(size_graphs, size_label):
+def run_A_star(size_graphs):
     # Initialize lists for storing results
-    costs, expanded, cpu, real = [], [], [], []
+    results = []  # Store (cost, expanded, cpu, real) for each graph
 
-    # Loop through each graph in the family
     for graph in size_graphs:
-        # Run A* algorithm and append results
         path, cost, expanded_val, cpu_val, real_val = A_MST(graph)
-        
-        # Append results for each graph
-        costs.append(cost)
-        expanded.append(expanded_val)
-        cpu.append(cpu_val)
-        real.append(real_val)
+        results.append((cost, expanded_val))
 
-    # Calculate statistics for A* algorithm for this size
+    # Calculate statistics
+    costs, expanded, cpu, real = zip(*results)  # Unzip results
     stats = {
         'A_star': {
             'costs': calculate_stats(costs),
@@ -116,24 +110,82 @@ def run_A_star(size_graphs, size_label):
         }
     }
 
-    # Output the stats to a CSV file (optional)
-    with open(f'A_Star_{size_label}_stats.csv', mode='w', newline='') as file:
-        writer = csv.writer(file)
+    return results
 
-        # Define a custom dialect with a comma delimiter
-        class CommaDialect(csv.Dialect):
-            delimiter = ','  # Comma as the delimiter
-            quoting = csv.QUOTE_MINIMAL
-            quotechar = '"'  # Add a quote character
-            lineterminator = '\n'
 
-        writer = csv.writer(file, dialect=CommaDialect)
-        writer.writerow(["Statistic", "Average", "Minimum", "Maximum"])
 
-        # Writing A* stats
-        writer.writerow(["A* Cost", stats['A_star']['costs']['avg'], stats['A_star']['costs']['min'], stats['A_star']['costs']['max']])
-        writer.writerow(["A* Nodes Expanded", stats['A_star']['expanded']['avg'], stats['A_star']['expanded']['min'], stats['A_star']['expanded']['max']])
-        writer.writerow(["A* CPU Time", stats['A_star']['cpu']['avg'], stats['A_star']['cpu']['min'], stats['A_star']['cpu']['max']])
-        writer.writerow(["A* Real Time", stats['A_star']['real']['avg'], stats['A_star']['real']['min'], stats['A_star']['real']['max']])
+def run_nn(size_graphs):
+    # Initialize lists for storing results
+    results = []  # Store (cost, expanded, cpu, real) for each graph
 
-    return stats
+    for graph in size_graphs:
+        path, cost, expanded_val, cpu_val, real_val = nearest_neighbor(graph, 0, False)
+        results.append((cost, expanded_val))
+
+    # Calculate statistics
+    costs, expanded, cpu, real = zip(*results)  # Unzip results
+    stats = {
+        'nn': {
+            'costs': calculate_stats(costs),
+            'expanded': calculate_stats(expanded),
+            'cpu': calculate_stats(cpu),
+            'real': calculate_stats(real)
+        }
+    }
+
+    return results
+
+def run_nn2o(size_graphs):
+    # Initialize lists for storing results
+    results = []  # Store (cost, expanded, cpu, real) for each graph
+
+    for graph in size_graphs:
+        path, cost, expanded_val, cpu_val, real_val = nearest_neighbor_2opt(graph, False)
+        results.append((cost, expanded_val))
+
+    # Calculate statistics
+    costs, expanded, cpu, real = zip(*results)  # Unzip results
+    stats = {
+        'nn': {
+            'costs': calculate_stats(costs),
+            'expanded': calculate_stats(expanded),
+            'cpu': calculate_stats(cpu),
+            'real': calculate_stats(real)
+        }
+    }
+
+    return results
+
+def run_rnn(size_graphs):
+    # Initialize lists for storing results
+    results = []  # Store (cost, expanded, cpu, real) for each graph
+
+    for graph in size_graphs:
+        path, cost, expanded_val, cpu_val, real_val = repeated_randomized_nearest_neighbor_2opt(adj_matrix=graph, make_file=False)
+        results.append((cost, expanded_val))
+
+    # Calculate statistics
+    costs, expanded, cpu, real = zip(*results)  # Unzip results
+    stats = {
+        'nn': {
+            'costs': calculate_stats(costs),
+            'expanded': calculate_stats(expanded),
+            'cpu': calculate_stats(cpu),
+            'real': calculate_stats(real)
+        }
+    }
+
+    return results
+
+def compute_differences(a_results, other_results):
+    cost_diffs = []
+    expanded_diffs = []
+    
+    for a_result, other_result in zip(a_results, other_results):
+        a_cost, a_expanded = a_result
+        other_cost, other_expanded = other_result
+        
+        cost_diffs.append(a_cost - other_cost)  # A* cost minus other algorithm's cost
+        expanded_diffs.append(a_expanded - other_expanded)  # A* expanded nodes minus other algorithm's expanded nodes
+    
+    return cost_diffs, expanded_diffs
