@@ -4,7 +4,8 @@ import numpy as np
 import csv
 import networkx as nx 
 from part1 import make_graph, calculate_stats, nearest_neighbor, nearest_neighbor_2opt, repeated_randomized_nearest_neighbor_2opt
-
+import os
+import matplotlib.pyplot as plt
 
 # help adapted from chatgpt prompt
 def mst_heuristic(adj_matrix, unvisited):
