@@ -79,7 +79,7 @@ def hillClimbing(adj_matrix, make_file, restarts=1):
             writer.writerow([f"Total cost: {best_cost}, Nodes expanded: {total_nodes_expanded}, "
                              f"CPU Run Time: {cpu_run_time:.6f} seconds, Real-World Run Time: {real_run_time:.6f} seconds"])
 
-    return best_path, best_cost, total_nodes_expanded, cpu_run_time, real_run_time
+    return best_path, float(best_cost), total_nodes_expanded, cpu_run_time, real_run_time
 
 
 def simuAnnealing(adj_matrix, make_file, restarts=1, initial_temperature=1000, alpha=0.95):
@@ -141,7 +141,7 @@ def simuAnnealing(adj_matrix, make_file, restarts=1, initial_temperature=1000, a
             writer.writerow([f"Total cost: {best_cost}, Nodes expanded: {total_nodes_expanded}, "
                              f"CPU Run Time: {cpu_run_time:.6f} seconds, Real-World Run Time: {real_run_time:.6f} seconds"])
 
-    return best_path, best_cost, total_nodes_expanded, cpu_run_time, real_run_time
+    return best_path, float(best_cost), total_nodes_expanded, cpu_run_time, real_run_time
 
 
 
@@ -257,7 +257,7 @@ def genetic(adj_matrix, make_file, generations=100, selection_type="roulette",
             writer.writerow([f"Total cost: {best_cost}, Nodes expanded: {total_nodes_expanded}, "
                              f"CPU Run Time: {cpu_run_time:.6f} seconds, Real-World Run Time: {real_run_time:.6f} seconds"])
 
-    return best_path, best_cost, total_nodes_expanded, cpu_run_time, real_run_time
+    return best_path, float(best_cost), total_nodes_expanded, cpu_run_time, real_run_time
 
 
 def run_hill_climbing(size_graphs, restarts=1):
@@ -265,7 +265,7 @@ def run_hill_climbing(size_graphs, restarts=1):
 
     for graph in size_graphs:
         path, cost, expanded_val, cpu_val, real_val = hillClimbing(graph, False, restarts)
-        results.append((cost, expanded_val))
+        results.append((cost, expanded_val, cpu_val, real_val))
 
     # Calculate statistics
     costs, expanded = zip(*results)  # Unzip results
@@ -283,7 +283,7 @@ def run_simuAnnealing(size_graphs, restarts=1, initial_temp=1000, alpha=0.95):
 
     for graph in size_graphs:
         path, cost, expanded_val, cpu_val, real_val = simuAnnealing(graph, False, restarts, initial_temp, alpha)
-        results.append((cost, expanded_val))
+        results.append((cost, expanded_val, cpu_val, real_val))
 
     # Calculate statistics
     costs, expanded = zip(*results)  # Unzip results
@@ -301,12 +301,31 @@ def run_genetic(size_graphs, generations=100, approach="roulette", cross_prob=0.
 
     for graph in size_graphs:
         path, cost, expanded_val, cpu_val, real_val = genetic(graph, False, generations, approach, cross_prob, cross_length, mutation_rate, 100)
-        results.append((cost, expanded_val))
+        results.append((cost, expanded_val, cpu_val, real_val))
 
     # Calculate statistics
     costs, expanded = zip(*results)  # Unzip results
     stats = {
         'simuAnnealing': {
+            'costs': calculate_stats(costs),
+            'expanded': calculate_stats(expanded),
+        }
+    }
+
+    return results
+
+def run_Astar_part3(size_graphs):
+    # Initialize lists for storing results
+    results = []  # Store (cost, expanded, cpu, real) for each graph
+
+    for graph in size_graphs:
+        path, cost, expanded_val, cpu_val, real_val = A_MST(graph)
+        results.append((cost, expanded_val))
+
+    # Calculate statistics
+    costs, expanded = zip(*results)  # Unzip results
+    stats = {
+        'A_star': {
             'costs': calculate_stats(costs),
             'expanded': calculate_stats(expanded),
         }
