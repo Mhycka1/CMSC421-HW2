@@ -5,8 +5,8 @@ import random
 import numpy as np
 import csv
 import math
-from part2 import calculate_stats
-
+from part2 import calculate_stats, A_MST
+import matplotlib.pyplot as plt
 
 def value(adj_matrix, path):
     """Calculate the total cost of a given path."""
@@ -268,7 +268,7 @@ def run_hill_climbing(size_graphs, restarts=1):
         results.append((cost, expanded_val, cpu_val, real_val))
 
     # Calculate statistics
-    costs, expanded = zip(*results)  # Unzip results
+    costs, expanded, cpu, real = zip(*results)  # Unzip results
     stats = {
         'hillClimbing': {
             'costs': calculate_stats(costs),
@@ -286,7 +286,7 @@ def run_simuAnnealing(size_graphs, restarts=1, initial_temp=1000, alpha=0.95):
         results.append((cost, expanded_val, cpu_val, real_val))
 
     # Calculate statistics
-    costs, expanded = zip(*results)  # Unzip results
+    costs, expanded, cpu, real = zip(*results)  # Unzip results
     stats = {
         'simuAnnealing': {
             'costs': calculate_stats(costs),
@@ -304,7 +304,7 @@ def run_genetic(size_graphs, generations=100, approach="roulette", cross_prob=0.
         results.append((cost, expanded_val, cpu_val, real_val))
 
     # Calculate statistics
-    costs, expanded = zip(*results)  # Unzip results
+    costs, expanded, cpu, real = zip(*results)  # Unzip results
     stats = {
         'simuAnnealing': {
             'costs': calculate_stats(costs),
@@ -320,10 +320,10 @@ def run_Astar_part3(size_graphs):
 
     for graph in size_graphs:
         path, cost, expanded_val, cpu_val, real_val = A_MST(graph)
-        results.append((cost, expanded_val))
+        results.append((cost, expanded_val, cpu_val, real_val))
 
     # Calculate statistics
-    costs, expanded = zip(*results)  # Unzip results
+    costs, expanded, cpu, real = zip(*results)  # Unzip results
     stats = {
         'A_star': {
             'costs': calculate_stats(costs),
@@ -332,3 +332,37 @@ def run_Astar_part3(size_graphs):
     }
 
     return results
+
+def plot_algorithm_performance(algorithm_name, algorithm_results, astar_results, output_dir):
+    sizes = ['5', '6', '7']
+    avg_diffs, min_diffs, max_diffs = [], [], []
+    cpu_times = []
+
+    for size in sizes:
+        astar_cost = astar_results[size][0]  # Total cost from A* results
+        algorithm_costs = algorithm_results[size]
+        
+        # Compute differences in cost
+        diffs = [cost_data[0] - astar_cost[0] for cost_data in algorithm_costs]
+        cpu_times_for_size = [cost_data[2] for cost_data in algorithm_costs]  # CPU runtime
+
+        # Calculate AVG, MIN, MAX for cost differences
+        avg_diffs.append(sum(diffs) / len(diffs))
+        min_diffs.append(min(diffs))
+        max_diffs.append(max(diffs))
+        cpu_times.append(sum(cpu_times_for_size) / len(cpu_times_for_size))  # Use avg CPU time
+    
+    # Plot the results
+    plt.figure(figsize=(10, 6))
+    plt.plot(cpu_times, avg_diffs, marker='o', color='b', label="AVG", linestyle='-')
+    plt.fill_between(cpu_times, min_diffs, max_diffs, color='b', alpha=0.2, label="MIN/MAX")
+    
+    plt.title(f"{algorithm_name} Performance vs A*")
+    plt.xlabel("CPU Runtime")
+    plt.ylabel("Cost Difference (Algorithm - A*)")
+    plt.grid(True)
+    plt.legend()
+    
+    # Save plot
+    plt.savefig(os.path.join(output_dir, f"{algorithm_name.lower().replace(' ', '_')}_performance.png"))
+    plt.close()

@@ -1,13 +1,14 @@
 # here is where all the parts will be run
 from part1 import make_graph, process_graph_family, make_part1_graphs, read_stats
 from part2 import run_A_star, run_nn, run_nn2o, run_rnn, compute_differences, make_part2_graphs
-from part3 import run_hill_climbing, run_simuAnnealing, run_genetic, run_Astar_part3
+from part3 import run_hill_climbing, run_simuAnnealing, run_genetic, run_Astar_part3, plot_algorithm_performance
 import os
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.pyplot as plt
 
 def main():
+    # Print starting part 1
     # size_5_graphs = [] 
     # size_10_graphs = []
     # size_15_graphs = []
@@ -145,10 +146,10 @@ def main():
     h_6_3 = run_hill_climbing(size_6_graphs, 3)
     h_7_3 = run_hill_climbing(size_7_graphs, 3)
 
-    print("Hill Climbing Results:")
-    print("Size 5, Restarts 1:\n", h_5_1)
-    print("Size 5, Restarts 2:\n", h_5_2)
-    print("Size 5, Restarts 3:\n", h_5_3)
+    # print("Hill Climbing Results:")
+    # print("Size 5, Restarts 1:\n", h_5_1)
+    # print("Size 5, Restarts 2:\n", h_5_2)
+    # print("Size 5, Restarts 3:\n", h_5_3)
 
 
     #simulated annealing cluster
@@ -169,11 +170,11 @@ def main():
     s_6_1_1000_85 = run_simuAnnealing(size_6_graphs, alpha=0.85)
     s_7_1_1000_85 = run_simuAnnealing(size_7_graphs, alpha=0.85)
 
-    print("\nSimulated Annealing Results:")
-    print("Size 5, Restarts 1, Initial Temp 1000, Alpha 95:\n", s_5_1_1000_95)
-    print("Size 5, Restarts 2, Initial Temp 1000, Alpha 95:\n", s_5_2_1000_95)
-    print("Size 5, Restarts 1, Initial Temp 2000, Alpha 95:\n", s_5_1_2000_95)
-    print("Size 5, Restarts 1, Initial Temp 1000, Alpha 85:\n", s_5_1_1000_85)
+    # print("\nSimulated Annealing Results:")
+    # print("Size 5, Restarts 1, Initial Temp 1000, Alpha 95:\n", s_5_1_1000_95)
+    # print("Size 5, Restarts 2, Initial Temp 1000, Alpha 95:\n", s_5_2_1000_95)
+    # print("Size 5, Restarts 1, Initial Temp 2000, Alpha 95:\n", s_5_1_2000_95)
+    # print("Size 5, Restarts 1, Initial Temp 1000, Alpha 85:\n", s_5_1_1000_85)
 
     # genetic cluster
     print("Running Genetic Algorithm")
@@ -201,18 +202,53 @@ def main():
     g_6_100_r_8_3_04 = run_genetic(size_6_graphs, mutation_rate=0.04)
     g_7_100_r_8_3_04 = run_genetic(size_7_graphs, mutation_rate=0.04)
 
-    print('\nGenetic Algorithm Results')
-    print('Size 5, Generations 100, Approach roulette, Crossover Probability 0.8, Crossover Length 3, Mutation Rate 0.01\n', g_5_100_r_8_3_01)
-    print('Size 5, Generations 200, Approach roulette, Crossover Probability 0.8, Crossover Length 3, Mutation Rate 0.01\n', g_5_200_r_8_3_01)
-    print('Size 5, Generations 100, Approach tournament, Crossover Probability 0.8, Crossover Length 3, Mutation Rate 0.01\n', g_5_100_t_8_3_01)
-    print('Size 5, Generations 100, Approach roulette, Crossover Probability 0.9, Crossover Length 3, Mutation Rate 0.01\n', g_5_100_r_9_3_01)
-    print('Size 5, Generations 100, Approach roulette, Crossover Probability 0.8, Crossover Length 4, Mutation Rate 0.01\n', g_5_100_r_8_4_01)
-    print('Size 5, Generations 100, Approach roulette, Crossover Probability 0.8, Crossover Length 3, Mutation Rate 0.04\n', g_5_100_r_8_3_04)
+    # print('\nGenetic Algorithm Results')
+    # print('Size 5, Generations 100, Approach roulette, Crossover Probability 0.8, Crossover Length 3, Mutation Rate 0.01\n', g_5_100_r_8_3_01)
+    # print('Size 5, Generations 200, Approach roulette, Crossover Probability 0.8, Crossover Length 3, Mutation Rate 0.01\n', g_5_200_r_8_3_01)
+    # print('Size 5, Generations 100, Approach tournament, Crossover Probability 0.8, Crossover Length 3, Mutation Rate 0.01\n', g_5_100_t_8_3_01)
+    # print('Size 5, Generations 100, Approach roulette, Crossover Probability 0.9, Crossover Length 3, Mutation Rate 0.01\n', g_5_100_r_9_3_01)
+    # print('Size 5, Generations 100, Approach roulette, Crossover Probability 0.8, Crossover Length 4, Mutation Rate 0.01\n', g_5_100_r_8_4_01)
+    # print('Size 5, Generations 100, Approach roulette, Crossover Probability 0.8, Crossover Length 3, Mutation Rate 0.04\n', g_5_100_r_8_3_04)
 
     # we will use 2 restarts for hill climbing
     # we will use 1 restart, 1000 initial temp and an alpha of 85 for simulated annealing
     # we will use 100 generations, a roulette approach, 0.8 crossover probability, 3 crossover length, and 0.1 mutation rate for genetic algorithm
-    
+
+    astar_results = {
+        '5': a_5, 
+        '6': a_6, 
+        '7': a_7
+    }
+
+    hill_climbing_results = {
+        '5': h_5_2, 
+        '6': h_6_2,
+        '7': h_7_2
+    }
+
+    simu_annealing_results = {
+        '5': s_5_1_1000_85,
+        '6': s_6_1_1000_85,
+        '7': s_7_1_1000_85
+    }
+
+    genetic_results = {
+        '5': g_5_100_r_8_3_01,
+        '6': g_6_100_r_8_3_01,
+        '7': g_7_100_r_8_3_01
+    }
+
+    algorithms_data = {
+        "Hill Climbing": hill_climbing_results,
+        "Simulated Annealing": simu_annealing_results,
+        "Genetic Algorithm": genetic_results
+    }
+
+    output_dir = 'part3_result_graphs'
+    os.makedirs(output_dir, exist_ok=True)
+
+    for algorithm_name, algorithm_results in algorithms_data.items():
+        plot_algorithm_performance(algorithm_name, algorithm_results, astar_results, output_dir)
 
 if __name__ == "__main__":
     main()
