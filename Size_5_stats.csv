@@ -1,0 +1,21 @@
+Statistic,Average,Minimum,Maximum
+NN Cost,137.3,35.0,239.0
+NN Nodes Expanded,4.0,4.0,4.0
+NN CPU Time,0.0,0.0,0.0
+NN Real Time,6.7e-05,0.0,0.000998
+NN2O Cost,137.3,35.0,239.0
+NN2O Nodes Expanded,4.366667,4.0,7.0
+NN2O CPU Time,0.0,0.0,0.0
+NN2O Real Time,3.3e-05,0.0,0.001
+RNN Cost,118.6,33.0,209.0
+RNN Nodes Expanded,5.066667,4.0,7.0
+RNN CPU Time,0.0,0.0,0.0
+RNN Real Time,0.000291,0.0,0.001013
+RNN2 Cost,117.1,33.0,202.0
+RNN2 Nodes Expanded,4.766667,4.0,7.0
+RNN2 CPU Time,0.000521,0.0,0.015625
+RNN2 Real Time,0.0002,0.0,0.001003
+RNN4 Cost,115.2,33.0,190.0
+RNN4 Nodes Expanded,5.433333,4.0,8.0
+RNN4 CPU Time,0.0,0.0,0.0
+RNN4 Real Time,0.000267,0.0,0.001002

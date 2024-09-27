@@ -1,0 +1,17 @@
+HOW TO RUN:
+
+Clone the repository from github into a directory (your choice on whether to use Powershell, WSL, Command Prompt, or whatever your system has. 
+Just make sure you know the appropriate commands for your system). Move into thr CMSC421-HW directory that should not exist after you've cloned 
+the directory from github. 
+
+To run the algorithms for grader testing run "python main.py < (insert your infile name)". If your infile is located outside of the CMSC421-HW2 
+directory you will have to specify the path. If you copy it into the directory then you only need the text file name. The CSV files for each algorithm 
+will be generated and the file's get overwritten for each time you run the main.py file.
+
+To run the experiments run "python run_parts.py" and a seperate directory for each part 1-3 will be generated seperately with the appropriate graphs in each directory.
+
+
+PART1  WRITE-UP
+
+For most of the graph sizes, the RNN algorithm running with 2 restarts provided the lowest cost as shown by the graph below
+

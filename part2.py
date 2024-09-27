@@ -3,7 +3,7 @@ import time
 import numpy as np
 import csv
 import networkx as nx 
-from part1 import make_graph, calculate_stats, nearest_neighbor, nearest_neighbor_2opt, repeated_randomized_nearest_neighbor_2opt
+from part1 import make_graph, calculate_stats, NN, NN2O, RNN
 import os
 import matplotlib.pyplot as plt
 
@@ -28,7 +28,7 @@ def mst_heuristic(adj_matrix, unvisited):
     return mst.size(weight='weight')
 
 # A* with MST heuristic
-def A_MST(adj_matrix):
+def A_MST(adj_matrix, make_file=False):
     N = adj_matrix.shape[0]
     start_city = 0
     
@@ -65,6 +65,11 @@ def A_MST(adj_matrix):
             # Calculate CPU and real-world runtime
             cpu_runtime = time.process_time() - start_cpu_time
             real_runtime = time.time() - start_real_time
+
+            if make_file:
+                with open('repeated_randomized_nearest_neighbor_2opt.csv', mode='w', newline='') as file:
+                    writer = csv.writer(file)
+                    writer.writerow([f"Best Total cost: {total_cost}, Total Nodes expanded: {nodes_expanded}, CPU Run Time: {cpu_runtime:.6f} seconds, Real-World Run Time: {real_runtime:.6f} seconds"])
             
             return path, total_cost, nodes_expanded, cpu_runtime, real_runtime
         
@@ -90,6 +95,7 @@ def A_MST(adj_matrix):
     # If no solution found, return large values for cost and zero for times
     cpu_runtime = time.process_time() - start_cpu_time
     real_runtime = time.time() - start_real_time
+
     return None, float('inf'), nodes_expanded, cpu_runtime, real_runtime
 
 def run_A_star(size_graphs):
@@ -118,7 +124,7 @@ def run_nn(size_graphs):
     results = []  # Store (cost, expanded, cpu, real) for each graph
 
     for graph in size_graphs:
-        path, cost, expanded_val, cpu_val, real_val = nearest_neighbor(graph, 0, False)
+        path, cost, expanded_val, cpu_val, real_val = NN(graph, 0, False)
         results.append((cost, expanded_val))
 
     # Calculate statistics
@@ -137,7 +143,7 @@ def run_nn2o(size_graphs):
     results = []  # Store (cost, expanded, cpu, real) for each graph
 
     for graph in size_graphs:
-        path, cost, expanded_val, cpu_val, real_val = nearest_neighbor_2opt(graph, False)
+        path, cost, expanded_val, cpu_val, real_val = NN2O(graph, False)
         results.append((cost, expanded_val))
 
     # Calculate statistics
@@ -156,7 +162,7 @@ def run_rnn(size_graphs):
     results = []  # Store (cost, expanded, cpu, real) for each graph
 
     for graph in size_graphs:
-        path, cost, expanded_val, cpu_val, real_val = repeated_randomized_nearest_neighbor_2opt(adj_matrix=graph, make_file=False)
+        path, cost, expanded_val, cpu_val, real_val = RNN(adj_matrix=graph, make_file=False)
         results.append((cost, expanded_val))
 
     # Calculate statistics
