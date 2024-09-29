@@ -14,7 +14,7 @@ def main():
     # Read the actual matrix
     for i in range(size):
         line = sys.stdin.readline().strip()
-        matrix.append([int(x) for x in line.split()])  
+        matrix.append([float(x) for x in line.split()])  
     adjacency_matrix = np.array(matrix)
 
     print("Running Part 1 algorithms")

@@ -8,8 +8,8 @@ import math
 from part2 import calculate_stats, A_MST
 import matplotlib.pyplot as plt
 
+#helper method based on chatgpt generated method
 def value(adj_matrix, path):
-    """Calculate the total cost of a given path."""
     total_cost = 0
     for i in range(len(path) - 1):
         total_cost += adj_matrix[path[i]][path[i + 1]]
@@ -17,8 +17,8 @@ def value(adj_matrix, path):
     total_cost += adj_matrix[path[-1]][path[0]]
     return total_cost
 
+#helper method based on chatgpt generated method
 def get_neighbors(path):
-    """Generate neighboring paths by swapping two cities."""
     neighbors = []
     N = len(path)
     for i in range(1, N - 1):  # Avoid swapping the starting city
@@ -28,25 +28,25 @@ def get_neighbors(path):
             neighbors.append(new_path)
     return neighbors
 
+#method adapted from chatgpt prompt
 def hillClimbing(adj_matrix, make_file, restarts=1):
     best_path = None
     best_cost = float('inf')
     total_nodes_expanded = 0
     
-    # Start the overall timing with more precise real-world timing
-    real_start_time = time.perf_counter()  # Precise real-world time
-    cpu_start_time = psutil.Process(os.getpid()).cpu_times().user  # CPU time
+    real_start_time = time.perf_counter() 
+    cpu_start_time = psutil.Process(os.getpid()).cpu_times().user  
 
     for _ in range(restarts):
         N = adj_matrix.shape[0]
         nodes_expanded = 0
         
-        # Start from an initial random path (starting city remains fixed)
+        # Start from an initial random path
         current_path = [0] + random.sample(range(1, N), N - 1)
 
         while True:
             neighbors = get_neighbors(current_path)
-            nodes_expanded += len(neighbors)  # Count nodes expanded (neighbors generated)
+            nodes_expanded += len(neighbors)  
 
             if not neighbors:
                 break
@@ -66,13 +66,11 @@ def hillClimbing(adj_matrix, make_file, restarts=1):
         
         total_nodes_expanded += nodes_expanded
 
-    # Calculate overall timing
-    real_end_time = time.perf_counter()  # Precise real-world time
-    cpu_end_time = psutil.Process(os.getpid()).cpu_times().user  # CPU time
+    real_end_time = time.perf_counter()  
+    cpu_end_time = psutil.Process(os.getpid()).cpu_times().user 
     cpu_run_time = cpu_end_time - cpu_start_time
     real_run_time = real_end_time - real_start_time
 
-    # If make_file is True, write results to CSV
     if make_file:
         with open('hillClimbing.csv', mode='w', newline='') as file:
             writer = csv.writer(file)
@@ -87,9 +85,8 @@ def simuAnnealing(adj_matrix, make_file, restarts=1, initial_temperature=1000, a
     best_cost = float('inf')
     total_nodes_expanded = 0
     
-    # Start overall timing
-    real_start_time = time.perf_counter()  # Precise real-world time
-    cpu_start_time = psutil.Process(os.getpid()).cpu_times().user  # CPU time
+    real_start_time = time.perf_counter()  
+    cpu_start_time = psutil.Process(os.getpid()).cpu_times().user  
 
     for _ in range(restarts):
         N = adj_matrix.shape[0]
@@ -99,18 +96,18 @@ def simuAnnealing(adj_matrix, make_file, restarts=1, initial_temperature=1000, a
         current_path = [0] + random.sample(range(1, N), N - 1)
         current_cost = value(adj_matrix, current_path)
         
-        # Initial temperature
+
         T = initial_temperature
 
         while T > 1e-8:  # Stop when temperature is close to zero
             neighbors = get_neighbors(current_path)
-            nodes_expanded += len(neighbors)  # Count nodes expanded
+            nodes_expanded += len(neighbors)  
 
             # Randomly select a neighbor
             next_path = random.choice(neighbors)
             next_cost = value(adj_matrix, next_path)
 
-            # Calculate the cost difference
+           
             delta_cost = next_cost - current_cost
 
             # Accept the new solution if it's better, or with some probability if it's worse
@@ -128,13 +125,12 @@ def simuAnnealing(adj_matrix, make_file, restarts=1, initial_temperature=1000, a
         
         total_nodes_expanded += nodes_expanded
 
-    # Calculate overall timing
-    real_end_time = time.perf_counter()  # Precise real-world time
-    cpu_end_time = psutil.Process(os.getpid()).cpu_times().user  # CPU time
+
+    real_end_time = time.perf_counter() 
+    cpu_end_time = psutil.Process(os.getpid()).cpu_times().user  
     cpu_run_time = cpu_end_time - cpu_start_time
     real_run_time = real_end_time - real_start_time
 
-    # If make_file is True, write results to CSV
     if make_file:
         with open('simuAnnealing.csv', mode='w', newline='') as file:
             writer = csv.writer(file)
@@ -146,7 +142,7 @@ def simuAnnealing(adj_matrix, make_file, restarts=1, initial_temperature=1000, a
 
 
 
-# Selection function: Tournament or Roulette Wheel
+#helper method based on chatgpt generated method
 def selection(population, fitnesses, selection_type):
     if selection_type == "roulette":
         # Roulette wheel selection
@@ -183,13 +179,13 @@ def crossover(parent1, parent2, length):
     
     return child
 
-# Mutation function: Randomly swaps two cities
+#helper method based on chatgpt generated method
 def mutate(path, mutation_rate):
     if random.uniform(0, 1) < mutation_rate:
         i, j = random.sample(range(1, len(path)), 2)  # Avoid starting city
         path[i], path[j] = path[j], path[i]  # Swap two cities
 
-# Genetic Algorithm function
+#method based on chatgpt prompt
 def genetic(adj_matrix, make_file, generations=100, selection_type="roulette", 
                      crossover_prob=0.8, crossover_length=3, mutation_rate=0.01, population_size=100):
     N = adj_matrix.shape[0]
@@ -197,12 +193,12 @@ def genetic(adj_matrix, make_file, generations=100, selection_type="roulette",
 
     # Create the initial population (random paths)
     for _ in range(population_size):
-        path = [0] + random.sample(range(1, N), N - 1)  # Keep starting city fixed
+        path = [0] + random.sample(range(1, N), N - 1)  
         population.append(path)
     
     # Start overall timing
-    real_start_time = time.perf_counter()  # Precise real-world time
-    cpu_start_time = psutil.Process(os.getpid()).cpu_times().user  # CPU time
+    real_start_time = time.perf_counter()  
+    cpu_start_time = psutil.Process(os.getpid()).cpu_times().user  
 
     best_path = None
     best_cost = float('inf')
@@ -235,7 +231,7 @@ def genetic(adj_matrix, make_file, generations=100, selection_type="roulette",
 
         # Update population and total nodes expanded
         population = new_population[:population_size]  # Ensure correct population size
-        total_nodes_expanded += population_size  # Nodes expanded equals the population size
+        total_nodes_expanded += population_size  
 
         # Evaluate new population and update best solution
         for path in population:
@@ -244,13 +240,11 @@ def genetic(adj_matrix, make_file, generations=100, selection_type="roulette",
                 best_cost = current_cost
                 best_path = path
 
-    # Calculate overall timing
-    real_end_time = time.perf_counter()  # Precise real-world time
-    cpu_end_time = psutil.Process(os.getpid()).cpu_times().user  # CPU time
+    real_end_time = time.perf_counter() 
+    cpu_end_time = psutil.Process(os.getpid()).cpu_times().user  
     cpu_run_time = cpu_end_time - cpu_start_time
     real_run_time = real_end_time - real_start_time
 
-    # If make_file is True, write results to CSV
     if make_file:
         with open('genetic.csv', mode='w', newline='') as file:
             writer = csv.writer(file)
@@ -261,14 +255,13 @@ def genetic(adj_matrix, make_file, generations=100, selection_type="roulette",
 
 
 def run_hill_climbing(size_graphs, restarts=1):
-    results = []  # Store (cost, expanded, cpu, real) for each graph
+    results = [] 
 
     for graph in size_graphs:
         path, cost, expanded_val, cpu_val, real_val = hillClimbing(graph, False, restarts)
         results.append((cost, expanded_val, cpu_val, real_val))
 
-    # Calculate statistics
-    costs, expanded, cpu, real = zip(*results)  # Unzip results
+    costs, expanded, cpu, real = zip(*results) 
     stats = {
         'hillClimbing': {
             'costs': calculate_stats(costs),
@@ -279,14 +272,13 @@ def run_hill_climbing(size_graphs, restarts=1):
     return results
 
 def run_simuAnnealing(size_graphs, restarts=1, initial_temp=1000, alpha=0.95):
-    results = []  # Store (cost, expanded, cpu, real) for each graph
+    results = []  
 
     for graph in size_graphs:
         path, cost, expanded_val, cpu_val, real_val = simuAnnealing(graph, False, restarts, initial_temp, alpha)
         results.append((cost, expanded_val, cpu_val, real_val))
 
-    # Calculate statistics
-    costs, expanded, cpu, real = zip(*results)  # Unzip results
+    costs, expanded, cpu, real = zip(*results)  
     stats = {
         'simuAnnealing': {
             'costs': calculate_stats(costs),
@@ -297,14 +289,13 @@ def run_simuAnnealing(size_graphs, restarts=1, initial_temp=1000, alpha=0.95):
     return results
 
 def run_genetic(size_graphs, generations=100, approach="roulette", cross_prob=0.8, cross_length=3, mutation_rate=0.01):
-    results = []  # Store (cost, expanded, cpu, real) for each graph
+    results = []  
 
     for graph in size_graphs:
         path, cost, expanded_val, cpu_val, real_val = genetic(graph, False, generations, approach, cross_prob, cross_length, mutation_rate, 100)
         results.append((cost, expanded_val, cpu_val, real_val))
 
-    # Calculate statistics
-    costs, expanded, cpu, real = zip(*results)  # Unzip results
+    costs, expanded, cpu, real = zip(*results)  
     stats = {
         'simuAnnealing': {
             'costs': calculate_stats(costs),
@@ -315,15 +306,13 @@ def run_genetic(size_graphs, generations=100, approach="roulette", cross_prob=0.
     return results
 
 def run_Astar_part3(size_graphs):
-    # Initialize lists for storing results
-    results = []  # Store (cost, expanded, cpu, real) for each graph
+    results = []  
 
     for graph in size_graphs:
         path, cost, expanded_val, cpu_val, real_val = A_MST(graph)
         results.append((cost, expanded_val, cpu_val, real_val))
 
-    # Calculate statistics
-    costs, expanded, cpu, real = zip(*results)  # Unzip results
+    costs, expanded, cpu, real = zip(*results)  
     stats = {
         'A_star': {
             'costs': calculate_stats(costs),
@@ -333,36 +322,33 @@ def run_Astar_part3(size_graphs):
 
     return results
 
+
 def plot_algorithm_performance(algorithm_name, algorithm_results, astar_results, output_dir):
     sizes = ['5', '6', '7']
     avg_diffs, min_diffs, max_diffs = [], [], []
     cpu_times = []
 
     for size in sizes:
-        astar_cost = astar_results[size][0]  # Total cost from A* results
+        astar_cost = astar_results[size][0] 
         algorithm_costs = algorithm_results[size]
         
         # Compute differences in cost
         diffs = [cost_data[0] - astar_cost[0] for cost_data in algorithm_costs]
-        cpu_times_for_size = [cost_data[2] for cost_data in algorithm_costs]  # CPU runtime
+        cpu_times_for_size = [cost_data[2] for cost_data in algorithm_costs]  
 
-        # Calculate AVG, MIN, MAX for cost differences
         avg_diffs.append(sum(diffs) / len(diffs))
         min_diffs.append(min(diffs))
         max_diffs.append(max(diffs))
-        cpu_times.append(sum(cpu_times_for_size) / len(cpu_times_for_size))  # Use avg CPU time
+        cpu_times.append(sum(cpu_times_for_size) / len(cpu_times_for_size)) 
     
-    # Plot the results
+
     plt.figure(figsize=(10, 6))
     plt.plot(cpu_times, avg_diffs, marker='o', color='b', label="AVG", linestyle='-')
     plt.fill_between(cpu_times, min_diffs, max_diffs, color='b', alpha=0.2, label="MIN/MAX")
-    
     plt.title(f"{algorithm_name} Performance vs A*")
     plt.xlabel("CPU Runtime")
     plt.ylabel("Cost Difference (Algorithm - A*)")
     plt.grid(True)
     plt.legend()
-    
-    # Save plot
     plt.savefig(os.path.join(output_dir, f"{algorithm_name.lower().replace(' ', '_')}_performance.png"))
     plt.close()
