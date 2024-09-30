@@ -8,16 +8,13 @@ import math
 from part2 import calculate_stats, A_MST
 import matplotlib.pyplot as plt
 
-#helper method based on chatgpt generated method
 def value(adj_matrix, path):
     total_cost = 0
     for i in range(len(path) - 1):
         total_cost += adj_matrix[path[i]][path[i + 1]]
-    # Add cost to return to the starting city
     total_cost += adj_matrix[path[-1]][path[0]]
     return total_cost
 
-#helper method based on chatgpt generated method
 def get_neighbors(path):
     neighbors = []
     N = len(path)
@@ -28,7 +25,8 @@ def get_neighbors(path):
             neighbors.append(new_path)
     return neighbors
 
-#method adapted from chatgpt prompt
+#method adapted from below website code
+#https://www.tutorialspoint.com/design_and_analysis_of_algorithms/design_and_analysis_of_algorithms_hill_climbing.htm
 def hillClimbing(adj_matrix, make_file, restarts=1):
     best_path = None
     best_cost = float('inf')
@@ -51,14 +49,13 @@ def hillClimbing(adj_matrix, make_file, restarts=1):
             if not neighbors:
                 break
 
-            # Choose the best neighbor (minimize cost)
+            # Choose the best neighbor
             best_neighbor = min(neighbors, key=lambda path: value(adj_matrix, path))
             if value(adj_matrix, best_neighbor) >= value(adj_matrix, current_path):
-                break  # Stop if no better neighbor is found
+                break 
 
             current_path = best_neighbor
 
-        # Check if the current path is better than the best one found so far
         current_cost = value(adj_matrix, current_path)
         if current_cost < best_cost:
             best_cost = current_cost
@@ -79,7 +76,8 @@ def hillClimbing(adj_matrix, make_file, restarts=1):
 
     return best_path, float(best_cost), total_nodes_expanded, cpu_run_time, real_run_time
 
-
+#code adapted and modified from the below website
+#https://www.geeksforgeeks.org/implement-simulated-annealing-in-python/#
 def simuAnnealing(adj_matrix, make_file, restarts=1, initial_temperature=1000, alpha=0.95):
     best_path = None
     best_cost = float('inf')
@@ -92,7 +90,7 @@ def simuAnnealing(adj_matrix, make_file, restarts=1, initial_temperature=1000, a
         N = adj_matrix.shape[0]
         nodes_expanded = 0
         
-        # Initial random path (starting city remains fixed)
+        # Initial random path 
         current_path = [0] + random.sample(range(1, N), N - 1)
         current_cost = value(adj_matrix, current_path)
         
@@ -118,7 +116,7 @@ def simuAnnealing(adj_matrix, make_file, restarts=1, initial_temperature=1000, a
             # Cool down the temperature
             T *= alpha
 
-        # If this run produces a better result, update the best path and cost
+        # If this run is better update the best path and cost
         if current_cost < best_cost:
             best_cost = current_cost
             best_path = current_path
@@ -141,8 +139,6 @@ def simuAnnealing(adj_matrix, make_file, restarts=1, initial_temperature=1000, a
 
 
 
-
-#helper method based on chatgpt generated method
 def selection(population, fitnesses, selection_type):
     if selection_type == "roulette":
         # Roulette wheel selection
@@ -157,7 +153,7 @@ def selection(population, fitnesses, selection_type):
         # Tournament selection
         tournament_size = 3
         selected = random.sample(list(zip(population, fitnesses)), tournament_size)
-        selected.sort(key=lambda x: x[1], reverse=True)  # Sort by fitness (maximize)
+        selected.sort(key=lambda x: x[1], reverse=True)  # Sort by fitness 
         return selected[0][0]
 
 # Crossover function: Performs ordered crossover
@@ -182,21 +178,22 @@ def crossover(parent1, parent2, length):
 #helper method based on chatgpt generated method
 def mutate(path, mutation_rate):
     if random.uniform(0, 1) < mutation_rate:
-        i, j = random.sample(range(1, len(path)), 2)  # Avoid starting city
-        path[i], path[j] = path[j], path[i]  # Swap two cities
+        # Avoid starting city
+        i, j = random.sample(range(1, len(path)), 2) 
+        # Swap two cities 
+        path[i], path[j] = path[j], path[i] 
 
-#method based on chatgpt prompt
+#method adapted and modified from below site
+#https://medium.com/@Data_Aficionado_1083/genetic-algorithms-optimizing-success-through-evolutionary-computing-f4e7d452084f
 def genetic(adj_matrix, make_file, generations=100, selection_type="roulette", 
                      crossover_prob=0.8, crossover_length=3, mutation_rate=0.01, population_size=100):
     N = adj_matrix.shape[0]
     population = []
 
-    # Create the initial population (random paths)
     for _ in range(population_size):
         path = [0] + random.sample(range(1, N), N - 1)  
         population.append(path)
     
-    # Start overall timing
     real_start_time = time.perf_counter()  
     cpu_start_time = psutil.Process(os.getpid()).cpu_times().user  
 
@@ -222,18 +219,14 @@ def genetic(adj_matrix, make_file, generations=100, selection_type="roulette",
             else:
                 child1, child2 = parent1[:], parent2[:]
             
-            # Mutation
             mutate(child1, mutation_rate)
             mutate(child2, mutation_rate)
             
             new_population.append(child1)
             new_population.append(child2)
 
-        # Update population and total nodes expanded
-        population = new_population[:population_size]  # Ensure correct population size
+        population = new_population[:population_size] 
         total_nodes_expanded += population_size  
-
-        # Evaluate new population and update best solution
         for path in population:
             current_cost = value(adj_matrix, path)
             if current_cost < best_cost:

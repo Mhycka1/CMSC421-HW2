@@ -51,14 +51,13 @@ def NN(adj_matrix, start, make_file):
         cost += adj_matrix[last, next_loc]
         nodes_expanded += 1
 
-    # Return to the starting node to complete the tour
+    # Return to the starting node
     cost += adj_matrix[path[-1], start]
     path.append(start)
 
     real_end_time = time.time()  
     cpu_end_time = psutil.Process(os.getpid()).cpu_times().user 
 
-    # Calculate CPU run time and real-world (wall clock) run time
     cpu_run_time = cpu_end_time - cpu_start_time
     real_run_time = real_end_time - real_start_time
 
@@ -118,7 +117,7 @@ def two_opt(route, cost_mat):
                 if j - i == 1:
                     continue
 
-                # Calculate cost change if we reverse the segment best[i:j]
+                #find cost change if reverse the segment best
                 current_cost = (
                     cost_mat[best[i - 1], best[i]] +
                     cost_mat[best[j - 1], best[j]]
@@ -129,7 +128,7 @@ def two_opt(route, cost_mat):
                 )
                 
                 if new_cost < current_cost:
-                    # Reverse the segment and set improved to True
+                    # Reverse the segment 
                     best[i:j] = best[j - 1:i - 1:-1]
                     best_cost = best_cost - current_cost + new_cost
                     improved = True
@@ -162,7 +161,7 @@ def RNN(adj_matrix, iterations=10, n=3, make_file=True):
         path_nodes_expanded = 0
         opt_nodes_expanded = 0
 
-        # Construct an initial path using a randomized nearest neighbor approach
+        #make path using randomized NN approach
         for i in range(N - 1):
             last = path[-1]
             unvisited_nodes = np.arange(N)[mask]
@@ -178,7 +177,7 @@ def RNN(adj_matrix, iterations=10, n=3, make_file=True):
             cost += adj_matrix[last, next_loc]
             path_nodes_expanded += 1
 
-        # Complete the tour by returning to the starting node
+        #go back to the starting node
         cost += adj_matrix[path[-1], path[0]]
         path.append(path[0])
 

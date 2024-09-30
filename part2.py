@@ -7,28 +7,25 @@ from part1 import make_graph, calculate_stats, NN, NN2O, RNN
 import os
 import matplotlib.pyplot as plt
 
-# help adapted from chatgpt prompt
 def mst_heuristic(adj_matrix, unvisited):
-    """Calculate the Minimum Spanning Tree (MST) cost of the unvisited cities."""
     if len(unvisited) <= 1:
         return 0  
     
     subgraph = adj_matrix[np.ix_(unvisited, unvisited)]
     graph = nx.Graph()
     
-    # Add edges and weights to the graph
     for i in range(len(unvisited)):
         for j in range(i + 1, len(unvisited)):
             if subgraph[i, j] > 0:
                 graph.add_edge(unvisited[i], unvisited[j], weight=subgraph[i, j])
     
-    # Calculate the MST 
     mst = nx.minimum_spanning_tree(graph)
     
     return mst.size(weight='weight')
 
 # A* with MST heuristic
-# adapted from chatgpt prompt
+# adapted from code on below site
+#https://medium.com/@nicholas.w.swift/easy-a-star-pathfinding-7e6689c7f7b2
 def A_MST(adj_matrix, make_file=False):
     N = adj_matrix.shape[0]
     start_city = 0
@@ -55,7 +52,7 @@ def A_MST(adj_matrix, make_file=False):
         
         nodes_expanded += 1
 
-        # If all cities are visited and we are back at the start, goal state is achieved
+        # you've hit the goal if all cities are visited and you're at start
         if len(visited) == N:
             return_to_start_cost = adj_matrix[current_city][start_city]
             total_cost = g_n  + return_to_start_cost
@@ -70,7 +67,6 @@ def A_MST(adj_matrix, make_file=False):
             
             return path, total_cost, nodes_expanded, cpu_runtime, real_runtime
         
-        # Expand successors
         for next_city in range(N):
             if next_city not in visited:
                 # Calculate g(n) (current path cost)
@@ -83,8 +79,7 @@ def A_MST(adj_matrix, make_file=False):
                 
                 new_state = (new_g_n, next_city, visited + [next_city], path + [next_city])
                 heapq.heappush(pq, (f_n, new_state))
-    
-    # If no solution found, return large values for cost and zero for times
+
     cpu_runtime = time.process_time() - start_cpu_time
     real_runtime = time.time() - start_real_time
 
@@ -209,11 +204,8 @@ def make_part2_graphs(statistics):
     plt.xticks(sizes)
     plt.legend()
     plt.grid()
-
     plt.savefig(os.path.join(output_dir, 'total_cost_differences.png'))
     plt.close() 
-
-    # Create a plot for Nodes Expanded Differences
     plt.figure(figsize=(12, 6))
 
     for algorithm in algorithms:
