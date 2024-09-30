@@ -79,11 +79,8 @@ def A_MST(adj_matrix, make_file=False):
                 # h(n): Calculate the MST heuristic for the remaining unvisited cities
                 unvisited = [city for city in range(N) if city not in visited]
                 mst_cost = mst_heuristic(adj_matrix, unvisited) if unvisited else 0
-                
-                # Calculate f(n) = g(n) + h(n)
                 f_n = new_g_n + mst_cost
                 
-                # Create new state with the next city visited
                 new_state = (new_g_n, next_city, visited + [next_city], path + [next_city])
                 heapq.heappush(pq, (f_n, new_state))
     

@@ -5,7 +5,7 @@ from py2opt.routefinder import RouteFinder
 import time
 import csv
 import os
-import psutil  # for CPU time
+import psutil 
 import matplotlib.pyplot as plt
 
 
@@ -44,8 +44,8 @@ def NN(adj_matrix, start, make_file):
         unvisited_nodes = np.arange(N)[mask]
         unvisited_distances = adj_matrix[last][mask]
 
-        next_ind = np.argmin(unvisited_distances)  # Get the index of the nearest unvisited node
-        next_loc = unvisited_nodes[next_ind]  # Get the node number
+        next_ind = np.argmin(unvisited_distances)  
+        next_loc = unvisited_nodes[next_ind] 
         path.append(int(next_loc))
         mask[next_loc] = False
         cost += adj_matrix[last, next_loc]
@@ -143,15 +143,13 @@ def two_opt(route, cost_mat):
     return best, nodes_expanded
 
 
-# adapted from a chatgpt prompt asking to adapt my above NN and NN2O code 
-# into an RNN algorithm
 def RNN(adj_matrix, iterations=10, n=3, make_file=True):
     best_path = None
     best_cost = float('inf')
     total_nodes_expanded = 0
 
     real_start_time = time.time()  
-    cpu_start_time = psutil.Process(os.getpid()).cpu_times().user  # CPU time
+    cpu_start_time = psutil.Process(os.getpid()).cpu_times().user  
 
     N = adj_matrix.shape[0]
 
@@ -172,7 +170,7 @@ def RNN(adj_matrix, iterations=10, n=3, make_file=True):
 
             # Get 'n' nearest nodes randomly
             nearest_n_indices = np.argsort(unvisited_distances)[:n]
-            next_ind = random.choice(nearest_n_indices)  # Randomly choose one of the nearest nodes
+            next_ind = random.choice(nearest_n_indices) 
             next_loc = unvisited_nodes[next_ind]
 
             path.append(int(next_loc))
@@ -185,7 +183,7 @@ def RNN(adj_matrix, iterations=10, n=3, make_file=True):
         path.append(path[0])
 
         # 2-Opt Optimization
-        max_iterations = 1000  # Limit the total number of iterations for the 2-Opt process
+        max_iterations = 1000  
         iteration_counter = 0
         best_route = path[:]
         improved = True
@@ -238,23 +236,19 @@ def calculate_stats(data):
 
 
 def process_graph_family(size_graphs, size_label):
-    # Initialize lists for storing results
     nn_costs, nn_expanded, nn_cpu, nn_real = [], [], [], []
     nn2o_costs, nn2o_expanded, nn2o_cpu, nn2o_real = [], [], [], []
     rnn_costs, rnn_expanded, rnn_cpu, rnn_real = [], [], [], []
     rnn2_costs, rnn2_expanded, rnn2_cpu, rnn2_real = [], [], [], []
     rnn4_costs, rnn4_expanded, rnn4_cpu, rnn4_real = [], [], [], []
 
-    # Loop through each graph in the family
-    for graph in size_graphs:  # Iterate directly over size_graphs
-        # Run algorithms and append results
+    for graph in size_graphs:
         nn_path, nn_cost, nn_expanded_val, nn_cpu_val, nn_real_val = NN(graph, 0, False)
         nn2o_path, nn2o_cost, nn2o_expanded_val, nn2o_cpu_val, nn2o_real_val = NN2O(graph, False)
         rnn_path, rnn_cost, rnn_expanded_val, rnn_cpu_val, rnn_real_val = RNN(graph, n=3, make_file=False)
         rnn2_path, rnn2_cost, rnn2_expanded_val, rnn2_cpu_val, rnn2_real_val = RNN(graph, n=2, make_file=False)
         rnn4_path, rnn4_cost, rnn4_expanded_val, rnn4_cpu_val, rnn4_real_val = RNN(graph, n=4, make_file=False)
 
-        # Append results for size X graphs
         nn_costs.append(nn_cost)
         nn_expanded.append(nn_expanded_val)
         nn_cpu.append(nn_cpu_val)
@@ -280,7 +274,6 @@ def process_graph_family(size_graphs, size_label):
         rnn4_cpu.append(rnn4_cpu_val)
         rnn4_real.append(rnn4_real_val)
 
-    # Calculate statistics for each algorithm for this size
     stats = {
         'nn': {
             'costs': calculate_stats(nn_costs),
@@ -314,7 +307,6 @@ def process_graph_family(size_graphs, size_label):
         }
     }
 
-    # Output stats to CSV file 
     # below file writer bit is from chatgpt since i couldn't figure out how to do it
     with open(f'{size_label}_stats.csv', mode='w', newline='') as file:
         writer = csv.writer(file)
@@ -329,7 +321,6 @@ def process_graph_family(size_graphs, size_label):
         writer = csv.writer(file, dialect=CommaDialect)
         writer.writerow(["Statistic", "Average", "Minimum", "Maximum"])
 
-        # Writing all algorithm stats in a loop for cleanliness
         for algorithm in stats:
             writer.writerow([f"{algorithm.upper()} Cost", stats[algorithm]['costs']['avg'], stats[algorithm]['costs']['min'], stats[algorithm]['costs']['max']])
             writer.writerow([f"{algorithm.upper()} Nodes Expanded", stats[algorithm]['expanded']['avg'], stats[algorithm]['expanded']['min'], stats[algorithm]['expanded']['max']])
@@ -340,28 +331,35 @@ def process_graph_family(size_graphs, size_label):
 
 def read_stats(file_name):
     costs, nodes_expanded, cpu_time, real_time = {}, {}, {}, {}
-    
+
     with open(file_name, mode='r') as file:
         reader = csv.DictReader(file)
         for row in reader:
             # Check if necessary fields are present
-            if 'Statistic' not in row or 'Average' not in row or 'Minimum' not in row or 'Maximum' not in row:
+            if not all(key in row for key in ['Statistic', 'Average', 'Minimum', 'Maximum']):
                 print(f"Skipping malformed row: {row}")
                 continue
             
-            algorithm = row['Statistic'].split()[0]  
+            algorithm = row['Statistic'].split()[0].strip().upper()  
+            statistic_type = row['Statistic'].split()[1].strip().lower()  
 
-            if "Cost" in row['Statistic']:
-                costs[algorithm] = [float(row['Average']), float(row['Minimum']), float(row['Maximum'])]
-            elif "Nodes Expanded" in row['Statistic']:
-                nodes_expanded[algorithm] = [float(row['Average']), float(row['Minimum']), float(row['Maximum'])]
-            elif "CPU Time" in row['Statistic']:
-                cpu_time[algorithm] = [float(row['Average']), float(row['Minimum']), float(row['Maximum'])]
-            elif "Real Time" in row['Statistic']:
-                real_time[algorithm] = [float(row['Average']), float(row['Minimum']), float(row['Maximum'])]
+            try:
+                avg = float(row['Average'])
+                minimum = float(row['Minimum'])
+                maximum = float(row['Maximum'])
+            except ValueError as e:
+                print(f"Error converting row data: {row}, error: {e}")
+                continue
 
+            if "cost" in statistic_type:
+                costs[algorithm] = [avg, minimum, maximum]
+            elif "nodes" in statistic_type:
+                nodes_expanded[algorithm] = [avg, minimum, maximum]
+            elif "cpu" in statistic_type:
+                cpu_time[algorithm] = [avg, minimum, maximum]
+            elif "real" in statistic_type:
+                real_time[algorithm] = [avg, minimum, maximum]
     return costs, nodes_expanded, cpu_time, real_time
-
 
 
 def make_part1_graphs():
@@ -371,7 +369,6 @@ def make_part1_graphs():
     for size in sizes:
         file_name = f'Size_{size}_stats.csv'
         costs, nodes, cpu, real = read_stats(file_name)
-
         all_costs[size] = costs
         all_nodes[size] = nodes
         all_cpu[size] = cpu
@@ -381,66 +378,43 @@ def make_part1_graphs():
     os.makedirs(output_dir, exist_ok=True)
 
     color_map = {
-        'NN': 'tab:blue',
-        'NN2O': 'tab:orange',
-        'RNN': 'tab:green',
-        'RNN2': 'tab:red',
-        'RNN4': 'tab:purple',
+        'NN': 'blue',
+        'NN2O': 'orange',
+        'RNN': 'green',
+        'RNN2': 'red',
+        'RNN4': 'purple',
     }
 
-    fig, ax1 = plt.subplots()
+    def plot_graph(data_dict, y_label, file_name, title):
+        fig, ax = plt.subplots(figsize=(16, 6))
 
-    ax1.set_xlabel('Graph Size')
-    ax1.set_ylabel('Total Cost')
+        for algorithm in data_dict[sizes[0]].keys():
+            color = color_map.get(algorithm.split()[0], 'black')
 
-    # Plot costs
-    for algorithm in all_costs[5]:  
-        color = color_map.get(algorithm.split()[0], 'black')  
-        ax1.plot(sizes, [all_costs[size][algorithm][0] for size in sizes], 
-                    label=f'{algorithm} Cost', marker='o', color=color)
+            averages = [data_dict[size][algorithm][0] for size in sizes]
+            minimums = [data_dict[size][algorithm][1] for size in sizes]
+            maximums = [data_dict[size][algorithm][2] for size in sizes]
 
-    ax1.tick_params(axis='y')
+            # Jittering the points by adding a small random noise
+            jitter = 0.1  # Adjust this value for more/less jitter
+            sizes_jittered = np.array(sizes) + np.random.uniform(-jitter, jitter, size=len(sizes))
 
-    # Create second y-axis with the same values as the x-axis
-    ax2 = ax1.twinx()
-    ax2.set_ylabel('Graph Size')
+            # Scatter plots with transparency
+            ax.scatter(sizes_jittered, averages, label=f'{algorithm} Average', marker='o', color=color, alpha=0.6)
+            ax.scatter(sizes_jittered, minimums, label=f'{algorithm} Minimum', marker='x', color=color, alpha=0.6)
+            ax.scatter(sizes_jittered, maximums, label=f'{algorithm} Maximum', marker='^', color=color, alpha=0.6)
+
+        ax.set_xlabel('Graph Size')
+        ax.set_ylabel(y_label)
+        ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), frameon=True)
+        plt.title(title)
+        plt.savefig(os.path.join(output_dir, file_name))
+        plt.close()
+
+    plot_graph(all_costs, 'Total Cost', 'total_cost.png', 'Total Cost for Different Algorithms')
+    plot_graph(all_nodes, 'Nodes Expanded', 'nodes_expanded.png', 'Nodes Expanded for Different Algorithms')
+    plot_graph(all_cpu, 'CPU Runtime', 'cpu_runtime.png', 'CPU Runtime for Different Algorithms')
+    plot_graph(all_real, 'Real World Runtime', 'real_runtime.png', 'Real World Runtime for Different Algorithms')
 
 
-    ax2.plot(sizes, sizes, linestyle='--', color='gray', label='Graph Size (Reference)')
-    ax2.tick_params(axis='y')
-    fig.tight_layout()
-    ax1.legend(loc='upper left')
-    ax2.legend(loc='upper right')
-    plt.title('Total Cost and Graph Size for Different Algorithms')
-    plt.savefig(os.path.join(output_dir, 'cost_and_nodes.png'))
-    plt.close()  
-
-    # Plot for CPU and Real-World Runtime
-    fig, ax3 = plt.subplots()
-
-    ax3.set_xlabel('Graph Size')
-    ax3.set_ylabel('CPU Time')
-
-    for algorithm in all_cpu[5]:
-        color = color_map.get(algorithm.split()[0], 'black') 
-        ax3.plot(sizes, [all_cpu[size][algorithm][0] for size in sizes], 
-                    label=f'{algorithm} CPU Time', marker='o', color=color)
-
-    ax3.tick_params(axis='y')
-
-    ax4 = ax3.twinx()
-    ax4.set_ylabel('Real Time')
-
-    for algorithm in all_real[5]:
-        color = color_map.get(algorithm.split()[0], 'black')  
-        ax4.plot(sizes, [all_real[size][algorithm][0] for size in sizes], 
-                    label=f'{algorithm} Real Time', linestyle='--', color=color)
-
-    ax4.tick_params(axis='y')
-    fig.tight_layout()
-    ax3.legend(loc='upper left')
-    ax4.legend(loc='upper right')
-    plt.title('CPU Time and Real-World Runtime for Different Algorithms')
-    plt.savefig(os.path.join(output_dir, 'cpu_and_real_time.png'))
-    plt.close()  
-
+    

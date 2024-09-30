@@ -1,8 +1,8 @@
 HOW TO RUN:
 
 Clone the repository from github into a directory (your choice on whether to use Powershell, WSL, Command Prompt, or whatever your system has. 
-Just make sure you know the appropriate commands for your system). Move into thr CMSC421-HW directory that should not exist after you've cloned 
-the directory from github. 
+Just make sure you know the appropriate commands for your system and have python and pip installed on your system). 
+Move into the CMSC421-HW directory that should now exist after you've cloned the directory from github. 
 
 To run the algorithms for grader testing run "python main.py < (insert your infile name)". If your infile is located outside of the CMSC421-HW2 
 directory you will have to specify the path. If you copy it into the directory then you only need the text file name. The CSV files for each algorithm 
@@ -13,5 +13,48 @@ To run the experiments run "python run_parts.py" and a seperate directory for ea
 
 PART1  WRITE-UP
 
-For most of the graph sizes, the RNN algorithm running with 2 restarts provided the lowest cost as shown by the graph below
+For total cost the lowest minimum seen for 3/6 sizes is from the default RNN algorithm with 3 restarts. I would have expected RNN to have found the lowest cost considering that the algorithm is
+the most complex out of the 3. It runs nearest neighbor multiple times at different starting points AND it also optimizes the path returned with 2-opt which attempts to swap edges to see if 
+a shorter path can be found. This is also evidenced by the largest maximum costs for each size being a tie between NN and NN2O which in some instance are 100 nodes higher than that of the RNN algorithms.
+The lowest average cost for all sizes is held by one of the RNN algorithms and I again believe this is due to the complexity of the algorithm and the amount of time
+it takes trying to compute a more optimal route. 
 
+Now on the flip side the RNN algorithms have an increase in the number of nodes expanded, as they constantly rerun the nearest neighbors algorithm
+from different starting points. NN and NN2O are tied for average number of nodes expanded in each graph size and interestingly enough the average and min nodes expanded for NN and NN2O are the same
+which is a testament to how simplistic nearest neighbors is. It's a simple greedy algorithm that looks for the nearest unvisited state and moves to it until it's visited everything. RNN runs NN several times 
+from different starting points which is why the nodes expanded is so much greater. This extra computation is reflected in the cpu runtime and real world runtime. 
+
+For both the cpu and real runtime the averages are fairly similar for a graph of size 5 with the RNN algorithms being slightly higher than NN and NN2O. But as the graph size gets larger the run time differences
+get more drastic with the RNN algorithms getting further away from the NN methods as they take more computation and run time. The max's for all graph sizes are held by RNN algos due to the extra computation needed
+
+
+PART2 WRITE-UP
+
+cost
+The NN and NN2O algorithms both have negative average difference in cost compared to A* which means that they had a higher cost than A*. Now this makes sense because nearest neighbor is a greedy algorithm.
+A* uses real values along with estimated values from a heuristic to create a path from start to target. A* will prioritize nodes more promising according to it's heuristic and it has the capability to backtrack
+which a greedy algorithm does not have. A* looks at all nodes and decides what node to check based on its heuristic value as opposed to what's closest to its current node. But this can also be problematic and is why 
+RNN managed to find lower costs than it. A*'s admissible heuristic means that it's always underestimating distances and it chooses nodes to expand based on a priority queue that contains the f(n) value from its
+heuristic. This means it can pick a path to explore that seems cheaper at first but actually isnt. And based on these experiments it seems to fare worse than the hyper-optimized greedy algorithm that is RNN
+
+nodes expanded
+I will note that I wrote the code for this graphing so that you could see lines that would normally overlap and that most of the averages are overlapping and this can be seen in my code. 
+So for graphs of size 5 and 6 on average the NN, NN2O, and RNN algorithms did not have a difference in nodes expanded from A*. This changes as the graph size increases where NN, NN2O and RNN 
+begin to expand more nodes on average than A*. This is an example of when A* heuristic allows it to outperform greedy algorithms since it can evaluate paths globally as opposed to locally. Strangely though
+the RNN algorithm outperformed the NN and NN2O averages for nodes expanded on graphs of size 10 which i find odd. I would presume that the size 10 graphs were large and complex enough that the 2-opt part of RNN
+actually became effective, along with the restarts in random locations.
+
+
+PART3 WRITE-UP
+
+So as CPU runtime increases the larger and more complex the graphs are so higher runtimes indicate the algorithms were running on larger graphs. Taking that into consideration the hill-climbing algorithm far 
+outperformed A*, especially early on with smaller graphs. Hill climbing is a local search algorithm meaning it really doesn't hold memory on anything so it has little overhead and computation needed. It really 
+just needs to determine what it's smallest neighbor is and it can work toward the optimal path whithout needing heuristics or anything like A* which leads to it's low runtime and cost difference. If a graph if 
+fairly straightforward and its local minimums lead to global minimums then hill-climbing will find a lower cost solution than A*. It might run for longer on large graphs but it will use less CPU due 
+to how computationally simple it is. Simulated annealing is interesting because like hill-climbing it is almost always outperforming A* on average. Simulated annealing is similar to A* in that it starts out exploring the graph paths globally but it 
+improves upon A* by gradually exploring more locally as the temperature cools down which allows it to optimize the path it chose out from global exploration. This included local optimization seems to be what gives it the
+edge over A*. The consistent parameters for simulated annealing also mean that it takes the same CPU runtime each time, regardless of graph size. 
+Finally we have genetic algorithms which have a lot of overhead and as a result the CPU runtime on the graph actually starts at 0.094 which is around the spot where the graphs for the other algorithms are peaking.
+Genetic algorithms do a lot of complex stuff that creates new solutions by combining multiple promising solutions that already exist which is how they globally optimize a solution. As one would guess this is CPU intensive which is
+why the smallest amount of CPU runtime needed for this algorithm is already bigger than the runtime for hill climbing and simulated annealing. But despite this when the genetic algorithm is running, it is outperforming
+A* in finding the lowest cost. The overhead that goes to creating a new solution yields a path that is much more optimized than what A* can manage on average.

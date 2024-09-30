@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def main():
-    print("starting part 1")
+    print("Starting part 1")
     size_5_graphs = [] 
     size_10_graphs = []
     size_15_graphs = []
