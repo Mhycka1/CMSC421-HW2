@@ -21,15 +21,20 @@ For total cost the lowest minimum seen for 3/6 sizes is from the default RNN alg
 the most complex out of the 3. It runs nearest neighbor multiple times at different starting points AND it also optimizes the path returned with 2-opt which attempts to swap edges to see if 
 a shorter path can be found. This is also evidenced by the largest maximum costs for each size being a tie between NN and NN2O which in some instance are 100 nodes higher than that of the RNN algorithms.
 The lowest average cost for all sizes is held by one of the RNN algorithms and I again believe this is due to the complexity of the algorithm and the amount of time
-it takes trying to compute a more optimal route. 
+it takes trying to compute a more optimal route. As the graph size increases the default RNN algorithm minimum cost actually seems to further outperform the other algorithms after initially being tied with the other algorithms
+for size 5 and 10. Strangely though for graphs of size 30 the minimum cost for RNN with 3 restarts is worse than RNN with 2 restarts and RNN with 4 restarts, after outperforming them for graph sizes 15-25. But this is an example of the "n" 
+value of RNN changing the outcome. The "n" value represents the amount of times nearest neighbor algorithm is run from random starting spots. I believe this value effects the data because it determines how much optimization is done on the 
+proposed "best solution". If the number of restarts is too low like with 2 for example, then the RNN may not run NN enough to find the most optimized solution. You would think more restarts would mean you'll always get the most optimal cost 
+and path but this isn't the case due to the inherent ranomness that comes from running NN at different starting points. Depending on where it starts you might miss the optimal solution which can explain why RNN with 3 restarts often outperformed
+RNN with 4 restarts. 
 
 Now on the flip side the RNN algorithms have an increase in the number of nodes expanded, as they constantly rerun the nearest neighbors algorithm
 from different starting points. NN and NN2O are tied for average number of nodes expanded in each graph size and interestingly enough the average and min nodes expanded for NN and NN2O are the same
 which is a testament to how simplistic nearest neighbors is. It's a simple greedy algorithm that looks for the nearest unvisited state and moves to it until it's visited everything. RNN runs NN several times 
 from different starting points which is why the nodes expanded is so much greater. This extra computation is reflected in the cpu runtime and real world runtime. 
 
-For both the cpu and real runtime the averages are fairly similar for a graph of size 5 with the RNN algorithms being slightly higher than NN and NN2O. But as the graph size gets larger the run time differences
-get more drastic with the RNN algorithms getting further away from the NN methods as they take more computation and run time. The max's for all graph sizes are held by RNN algos due to the extra computation needed
+Now there are some slight differences between the cpu and real runtime  with the averages being fairly similar for a graph of size 5 with the RNN algorithms being slightly higher than NN and NN2O. But as the graph size gets larger the run time differences
+for CPU and real world runtime get more drastic with the RNN algorithms getting further away from the NN methods as they take more computation and therefore time to run. The max's for all graph sizes are held by RNN algos due to the extra computation needed
 
 
 PART2 WRITE-UP
