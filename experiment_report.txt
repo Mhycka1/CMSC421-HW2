@@ -1,14 +1,14 @@
 HOW TO RUN:
 
-Clone the repository from github into a directory (your choice on whether to use Powershell, WSL, Command Prompt, or whatever your system has. 
-Just make sure you know the appropriate commands for your system). Got to python website and follow the instructions to download python and also google 
+Download the zip file, unzip it in a folder or directory of your choice on the command line (your choice on whether to use Powershell, WSL, Command Prompt, or whatever your system has. 
+Just make sure you know the appropriate commands for your system). Go to python website and follow the instructions to download python and also google 
 "installation - pip documentation" and go to the website with the webpage matching that name and follow the instructions to download pip.
-Move into the CMSC421-HW directory that should now exist after you've cloned the directory from github. Run the following commands:
+Move into the CMSC421-HW directory that should now exist after you've added. Run the following commands:
 "pip install psutil", "pip install networkx", "pip install numpy", "pip install matplotlib", "pip install psutil", and finally "pip install psy2opt".
 This will make sure you have all the required python packages for my project to work.
 
 To run the algorithms for grader testing run "python main.py < (insert your infile name)". If your infile is located outside of the CMSC421-HW2 
-directory you will have to specify the path. If you copy it into the directory then you only need the text file name. The CSV files for each algorithm 
+directory you will have to specify the extended path. If you copy it into the directory then you only need the text file name. The CSV files for each algorithm 
 will be generated and the file's get overwritten for each time you run the main.py file.
 
 To run the experiments run "python run_parts.py" and a seperate directory for each part 1-3 will be generated seperately with the appropriate graphs in each directory. For part 1 
